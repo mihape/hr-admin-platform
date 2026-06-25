@@ -96,7 +96,6 @@ npm run build:win:demo
 The `release-assets` folder is included as a handoff convenience, but installer EXE files are ignored by `.gitignore` so they are not accidentally committed into repository history. Upload installers as GitHub Release assets instead.
 
 - `HR Admin Platform Setup 0.2.0.exe` - default release installer, empty startup.
-- `HR Admin Platform Setup 0.2.0 Release.exe` - same release build with explicit label.
 - `HR Admin Platform Setup 0.2.0 Demo.exe` - demo build with fictional sample data.
 - `CHECKSUMS.txt` - SHA256 checksums.
 
