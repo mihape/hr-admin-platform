@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="hu">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HR Admin Platform</title>
+    <link rel="icon" href="./assets/app-icon.ico" />
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./src/modules/module-ui.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Modul navigáció">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">HA</div>
+          <div>
+            <p class="brand-eyebrow">Admin platform</p>
+            <h1>HR központ</h1>
+          </div>
+        </div>
+
+        <nav class="module-nav" id="moduleNav" aria-label="Modulok"></nav>
+
+        <section class="tenant-card" aria-label="Aktív cég">
+          <span>Aktív cég</span>
+          <strong id="tenantName">Betöltés...</strong>
+          <small id="tenantMode">Helyi verzió</small>
+          <small id="tenantUser">Felhasználó</small>
+        </section>
+      </aside>
+
+      <main class="main-panel">
+        <header class="topbar">
+          <div>
+            <p class="topbar-eyebrow" id="activeModuleEyebrow">Áttekintés</p>
+            <h2 id="activeModuleTitle">HR admin áttekintés</h2>
+          </div>
+          <div class="topbar-actions">
+            <label class="search-box">
+              <span class="sr-only">Keresés</span>
+              <input id="globalSearch" type="search" placeholder="Keresés modulokban..." />
+            </label>
+            <button class="icon-button" type="button" id="printButton" title="Nyomtatás">
+              <span aria-hidden="true">P</span>
+              <span class="sr-only">Nyomtatás</span>
+            </button>
+            <button class="primary-button" type="button" id="exportButton">Export</button>
+          </div>
+        </header>
+
+        <section class="dashboard-grid" id="dashboardStats" aria-label="Platform statisztikák"></section>
+        <section class="content-surface" id="moduleContent" aria-live="polite"></section>
+      </main>
+    </div>
+
+    <script src="./src/config/app-config.js"></script>
+    <script src="./src/core/module-registry.js"></script>
+    <script src="./src/adapters/auth-tenant-adapter.js"></script>
+    <script src="./src/adapters/employee-adapter.js"></script>
+    <script src="./src/adapters/export-print-adapter.js"></script>
+    <script src="./src/modules/fleet/fleet.module.js"></script>
+    <script src="./src/modules/attendance/attendance.module.js"></script>
+    <script src="./src/modules/utilities/utilities.module.js"></script>
+    <script src="./src/modules/invoices/invoices.module.js"></script>
+    <script src="./src/modules/settings/settings.module.js"></script>
+    <script src="./src/app.js"></script>
+  </body>
+</html>

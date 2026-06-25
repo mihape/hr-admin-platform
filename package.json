@@ -1,0 +1,43 @@
+{
+  "name": "hr-admin-platform",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Helyi HR admin platform Windows app",
+  "main": "electron/main.js",
+  "scripts": {
+    "start": "electron .",
+    "build:win": "node scripts/write-build-config.js release && electron-builder --win --x64",
+    "build:win:demo": "node scripts/write-build-config.js demo && electron-builder --win --x64"
+  },
+  "build": {
+    "appId": "hu.tz.hr-admin-platform",
+    "productName": "HR Admin Platform",
+    "files": [
+      "index.html",
+      "styles.css",
+      "HASZNALATI_UTMUTATO.md",
+      "assets/**/*",
+      "src/**/*",
+      "electron/**/*",
+      "import/**/*"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "assets/app-icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "HR Admin Platform"
+    },
+    "directories": {
+      "output": "dist"
+    }
+  },
+  "devDependencies": {
+    "electron": "^31.7.7",
+    "electron-builder": "^24.13.3"
+  }
+}

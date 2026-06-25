@@ -1,0 +1,249 @@
+# HR Admin Platform - Használati útmutató
+
+## 1. Indítás
+
+A futtatható app a következő mappából indítható:
+
+`dist/win-unpacked/HR Admin Platform.exe`
+
+Az app helyi Windows adatfájlba ment, ha a telepített Electron környezetben fut. Böngészős tesztelésnél localStorage fallbacket használ, ezért az éles napi használathoz a Windows appot érdemes indítani.
+
+## 2. Első beállítás
+
+Nyisd meg a **Beállítások** modult.
+
+Itt add meg:
+
+- cég neve
+- működési mód vagy megjegyzés
+- felhasználó neve
+- számla alap fizetési módja
+- számla alap fizetési határideje
+- alap kategória
+- kiegyenlítéskor automatikusan kerüljön-e be a mai dátum
+
+Mentés után az oldalsáv, az áttekintő és a számlamodul is az új alapadatokat használja.
+
+## 3. Áttekintés
+
+Az **Áttekintés** oldalon látszanak a fő modulok és a napi fókusz.
+
+A napi fókusz automatikusan jelzi például:
+
+- lejárt vagy fizetésre váró számlákat
+- flotta határidőket
+- rezsi vagy albérlet nyitott egyenlegeket
+- jelenléti ív előkészítési teendőket
+
+A modul kártyákra kattintva az adott modul nyílik meg. A felső globális kereső a modulok között és az aktív modul tartalmában is segít keresni.
+
+## 4. Számlák
+
+Nyisd meg a **Számlák** modult.
+
+Új számla rögzítéséhez töltsd ki az űrlapot. A Beállításokban megadott alap fizetési mód, határidő és kategória automatikusan előtöltődik.
+
+A partner mező tanul:
+
+- ha egyszer felvittél egy partnert, később felajánlja
+- a táblában a partner neve kattintható
+- kattintásra partner szerinti szűrés indul
+
+### Szűrés és fókusz nézet
+
+A számlák felett külön **Számla keresés** mező van. Ez csak a számlákon belül keres, így nem kell felgörgetni a globális keresőhöz.
+
+Használható még:
+
+- státusz szűrő
+- fizetési mód szűrő
+- oszloponkénti szűrés
+- projekt chip
+- partner chip
+- hónapválasztó
+
+A **Fókusz nézet** elrejti a statisztikai boxokat és az űrlapot. Ilyenkor csak a hónapválasztó, a kereső/szűrő sáv és a számlalista marad elöl.
+
+### Tömeges kiegyenlítés
+
+A számlalistában a nyitott számlák mellett checkbox jelenik meg.
+
+Lépések:
+
+1. Szűrj partnerre, hónapra vagy státuszra.
+2. Jelöld ki a kiegyenlítendő számlákat.
+3. Kattints a **Kiegyenlítés** gombra.
+
+Ha a Beállításokban aktív a mai dátum automatikus kitöltése, az utalás dátuma is bekerül.
+
+### Mentett partnerek
+
+A **Beállítások / Mentett partnerek** részen kezelhető a partnerlista.
+
+Itt lehet:
+
+- új partnert hozzáadni
+- partnerlistát frissíteni a számlákból
+- partnert átnevezni
+- mentett partnert törölni
+
+Átnevezéskor a meglévő számlák partnerneve is frissül.
+
+### Import és export
+
+A számla modulban használható:
+
+- Excel/CSV import
+- CSV export
+
+Importnál támogatott mezők például: dátum, partner vagy kiállító, számlaszám, nettó, ÁFA, bruttó, fizetési mód, fizetési határidő, kiegyenlítés, projekt, megjegyzés.
+
+## 5. Flotta
+
+Nyisd meg a **Flotta** modult.
+
+Ez a céges autók, tankolások, szervizek és lejáratok gyors nyilvántartására szolgál.
+
+### Áttekintés
+
+Az áttekintésben látszik:
+
+- aktív járművek száma
+- havi üzemanyagköltség
+- havi szervizköltség
+- figyelendő határidők
+- legutóbbi tankolások
+- műszaki és KGFB lejáratok
+
+### Autók kezelése
+
+Az **Autók** fülön választható ki egy jármű. A részleteknél látszik az óraállás, a műszaki lejárat, a KGFB lejárat, az összesített tankolás és szerviz.
+
+Autó rögzítéséhez vagy módosításához használd a **Rögzítés** fület.
+
+Megadható:
+
+- rendszám
+- típus vagy modell
+- kilométeróra állás
+- műszaki lejárat
+- KGFB lejárat
+
+### Tankolás rögzítése
+
+A **Rögzítés** fülön a tankoláshoz add meg:
+
+- autó
+- dátum
+- kilométeróra állás
+- liter
+- költség
+
+Mentés után az adott autó kilométeróra állása frissül, ha az új érték magasabb a korábbinál. A fogyasztás az előző tankolás alapján számolódik.
+
+### Szerviz és munkalap
+
+Szerviz rögzítéséhez add meg:
+
+- autó
+- dátum
+- típus
+- költség
+- leírás
+
+A **Naplók** fülön külön látszanak a tankolások és a munkalapok. A modul exportálható CSV-be.
+
+## 6. Rezsi és Albérlet
+
+Nyisd meg a **Rezsi** modult.
+
+Ez az ingatlanok, bérlők, mérőállások, bérleti díjak és havi elszámolások kezelésére szolgál.
+
+### Hónap és ingatlan kiválasztása
+
+A modul tetején választható:
+
+- aktív ingatlan
+- elszámolási hónap
+- bérlő
+- fizetési határidő
+
+Az ingatlan vagy hónap váltása után a havi elszámolás automatikusan frissül.
+
+### Havi elszámolás
+
+Az **Elszámolás** fülön rögzíthető:
+
+- víz előző és aktuális állás
+- villany előző és aktuális állás
+- gáz előző és aktuális állás
+- egységárak
+- bérleti díj
+- fizetett összeg
+- egyszeri plusz tétel
+
+A modul kiszámolja a közműveket, a bérleti díjat, az ismétlődő tételeket, az egyszeri plusz tételeket, a fizetendő összeget és az egyenleget.
+
+### Ingatlanok
+
+Az **Ingatlanok** fülön új ingatlan vagy albérlet vehető fel.
+
+Megadható:
+
+- ingatlan neve
+- bérlő
+- cím vagy azonosító
+- bérleti díj
+- kaució
+- telefon
+
+A táblában egy ingatlan sorára kattintva az adott ingatlan havi elszámolása nyílik meg. A modulból nyomtatás és CSV export is indítható.
+
+## 7. Jelenlét
+
+Nyisd meg a **Jelenlét** modult.
+
+Itt munkatársakat lehet kezelni, és heti jelenléti íveket lehet előkészíteni.
+
+Használható funkciók:
+
+- új munkatárs felvétele
+- meglévő munkatárs szerkesztése
+- aktív/inaktív állapot kezelése
+- heti ív előnézet
+- jelenlegi ív nyomtatása
+- összes aktív munkatárs ívének nyomtatása
+- CSV export
+
+A nyomtatás A4-es lapra optimalizált. A hétválasztóval megadható, melyik hét jelenléti íve készüljön.
+
+## 8. Biztonsági mentés
+
+A **Beállítások** vagy az **Áttekintés / Adatok és átadás** részen elérhető:
+
+- Biztonsági mentés
+- Mentés visszatöltése
+- Átadási fájl export
+
+Érdemes rendszeresen biztonsági mentést készíteni, főleg nagyobb import, adattisztítás vagy végleges átadás előtt.
+
+## 9. Ismert korlátok
+
+- A jelenlegi verzió helyi admin app, nem többfelhasználós szerveres rendszer.
+- Böngészőből tesztelve az adatmentés localStorage fallbacket használ.
+- A végleges installer buildhez natív Windows buildkörnyezet vagy megfelelő Wine környezet kell.
+
+## 10. Gyors ellenőrzés átadás előtt
+
+Átadás előtt érdemes végigmenni ezen:
+
+- cég- és felhasználónév beállítva
+- új számla rögzítése működik
+- partner autocomplete működik
+- fókusz nézet jól jelenik meg
+- tömeges kiegyenlítés működik
+- flotta autónál tankolás és szerviz menthető
+- rezsi/albérlet havi elszámolás számol
+- jelenléti ív nyomtatható
+- biztonsági mentés készül
+- az app a `dist/win-unpacked/HR Admin Platform.exe` fájlból indul

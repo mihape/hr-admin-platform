@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="HR Admin Platform ikon">
+  <defs>
+    <linearGradient id="bg" x1="42" y1="24" x2="220" y2="230" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#10211d" />
+      <stop offset="1" stop-color="#0f766e" />
+    </linearGradient>
+    <linearGradient id="paper" x1="76" y1="48" x2="174" y2="180" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff" />
+      <stop offset="1" stop-color="#dff7f2" />
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="56" fill="url(#bg)" />
+  <rect x="25" y="25" width="206" height="206" rx="44" fill="none" stroke="#baf1e8" stroke-opacity="0.2" stroke-width="4" />
+  <path d="M78 48h76l38 38v104a18 18 0 0 1-18 18H78a18 18 0 0 1-18-18V66a18 18 0 0 1 18-18Z" fill="url(#paper)" />
+  <path d="M154 48v32a10 10 0 0 0 10 10h28" fill="#b7eee4" />
+  <rect x="82" y="101" width="72" height="10" rx="5" fill="#0f766e" opacity="0.9" />
+  <rect x="82" y="123" width="92" height="10" rx="5" fill="#15201b" opacity="0.22" />
+  <rect x="82" y="145" width="78" height="10" rx="5" fill="#15201b" opacity="0.22" />
+  <circle cx="83" cy="190" r="35" fill="#15201b" />
+  <path d="M66 190h34M83 173v34" stroke="#baf1e8" stroke-width="10" stroke-linecap="round" />
+  <circle cx="169" cy="180" r="38" fill="#0f766e" />
+  <path d="m149 180 14 14 28-32" fill="none" stroke="#ffffff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" />
+</svg>

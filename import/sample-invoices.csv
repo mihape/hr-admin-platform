@@ -1,0 +1,6 @@
+month;date;issuer;invoice_number;gross_amount;vat_amount;payment_method;due_date;settlement;project;note
+2026-01;2026-01-05;Northwind Office Supplies Ltd.;DEMO-2026-001;45900;9756;bank transfer;2026-01-13;paid;Office setup;Fictional demo data
+2026-01;2026-01-09;Contoso Fuel Services Ltd.;DEMO-2026-002;38200;8126;card;2026-01-09;paid;Fleet;Fictional demo data
+2026-01;2026-01-14;Fabrikam Building Materials Ltd.;DEMO-2026-003;214500;45602;bank transfer;2026-01-22;open;Site A;Fictional demo data
+2026-02;2026-02-03;Adventure Works Utilities Ltd.;DEMO-2026-004;68700;14608;bank transfer;2026-02-11;open;Utilities;Fictional demo data
+2026-02;2026-02-12;Tailspin Transport Ltd.;DEMO-2026-005;129900;27617;bank transfer;2026-02-20;paid;Fleet;Fictional demo data
