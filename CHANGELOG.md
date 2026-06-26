@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.1 - 2026-06-26
+
+- Számla modul: a dedikált számlakereső gépelés közben nem ugrik vissza az oldal tetejére.
+- Számla modul: készpénzes fizetésnél a fizetési határidő automatikusan aznapi.
+- Számla modul: készpénzes fizetésnél az új számla automatikusan `Kiegyenlítve` állapotot kap `Utalva` helyett.
+- Számla modul: a fizetett/nyitott összesítések már az `Utalva` és `Kiegyenlítve` státuszt is fizetettként kezelik.
+
 ## 0.3.0 - 2026-06-26
 
 - Beállítások modul: választható közös NAS/hálózati JSON adatfájl.

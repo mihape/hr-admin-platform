@@ -43,6 +43,8 @@ Nyisd meg a **Számlák** modult.
 
 Új számla rögzítéséhez töltsd ki az űrlapot. A Beállításokban megadott alap fizetési mód, határidő és kategória automatikusan előtöltődik.
 
+Ha a fizetési mód **Készpénz**, a fizetési határidő automatikusan aznapi, a számla pedig **Kiegyenlítve** állapotot kap. Így nem jelenik meg tévesen **Utalva** státusszal.
+
 A partner mező tanul:
 
 - ha egyszer felvittél egy partnert, később felajánlja
@@ -74,7 +76,7 @@ Lépések:
 2. Jelöld ki a kiegyenlítendő számlákat.
 3. Kattints a **Kiegyenlítés** gombra.
 
-Ha a Beállításokban aktív a mai dátum automatikus kitöltése, az utalás dátuma is bekerül.
+Ha a Beállításokban aktív a mai dátum automatikus kitöltése, az utalás dátuma is bekerül. A tömeges kiegyenlítés továbbra is **Utalva** állapotot állít be, mert ez jellemzően utalásos csomagokra való.
 
 ### Mentett partnerek
 

@@ -46,7 +46,7 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for details.
 Use the default release installer for a clean public release:
 
 ```text
-release-assets/HR Admin Platform Setup 0.3.0.exe
+release-assets/HR Admin Platform Setup 0.3.1.exe
 ```
 
 The installer uses a classic Windows setup wizard and allows choosing the installation directory. A fresh machine starts with an empty local database.
@@ -54,7 +54,7 @@ The installer uses a classic Windows setup wizard and allows choosing the instal
 The demo installer is only for internal testing:
 
 ```text
-release-assets/HR Admin Platform Setup 0.3.0 Demo.exe
+release-assets/HR Admin Platform Setup 0.3.1 Demo.exe
 ```
 
 See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for sysadmin-focused deployment, update, uninstall, and backup notes.
@@ -95,8 +95,8 @@ npm run build:win:demo
 
 The `release-assets` folder is included as a handoff convenience, but installer EXE files are ignored by `.gitignore` so they are not accidentally committed into repository history. Upload installers as GitHub Release assets instead.
 
-- `HR Admin Platform Setup 0.3.0.exe` - default release installer, empty startup.
-- `HR Admin Platform Setup 0.3.0 Demo.exe` - demo build with fictional sample data.
+- `HR Admin Platform Setup 0.3.1.exe` - default release installer, empty startup.
+- `HR Admin Platform Setup 0.3.1 Demo.exe` - demo build with fictional sample data.
 - `CHECKSUMS.txt` - SHA256 checksums.
 
 ## Hungarian Summary

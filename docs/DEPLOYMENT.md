@@ -17,7 +17,7 @@ This guide describes how to deploy HR Admin Platform as a local Windows desktop 
 Use the release installer:
 
 ```text
-HR Admin Platform Setup 0.3.0.exe
+HR Admin Platform Setup 0.3.1.exe
 ```
 
 The installer is an NSIS assisted installer. It is not a one-click silent installer by default. The user can select the installation directory and launch the app after setup.

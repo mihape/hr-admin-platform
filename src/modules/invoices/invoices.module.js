@@ -39,7 +39,7 @@
 
   var paymentMethods = ["Utalás", "Kártya", "Készpénz", "Utánvét", "Csoportos beszedés", "Egyéb"];
   var paymentTerms = [3, 8, 15, 30];
-  var statuses = ["Fizetésre vár", "Utalva"];
+  var statuses = ["Fizetésre vár", "Utalva", "Kiegyenlítve"];
   var categories = ["Anyag", "Alvállalkozó", "Iroda", "Rezsi", "Flotta", "Bér", "Egyéb"];
   var uiState = {
     month: "",
@@ -68,12 +68,14 @@
   }
 
   function normalizeStoredInvoice(invoice) {
+    var paymentMethod = normalizePaymentMethod(invoice.paymentMethod);
+    var status = resolveInvoiceStatus(invoice.status, paymentMethod);
     return Object.assign({}, invoice, {
-      paymentMethod: normalizePaymentMethod(invoice.paymentMethod),
-      status: normalizeStatus(invoice.status),
-      paymentTermDays: normalizePaymentTerm(invoice.paymentTermDays, invoice.paymentMethod, invoice.date, invoice.dueDate),
+      paymentMethod: paymentMethod,
+      status: status,
+      paymentTermDays: normalizePaymentTerm(invoice.paymentTermDays, paymentMethod, invoice.date, invoice.dueDate),
       dueDate: normalizeDueDate(invoice),
-      paidDate: normalizePaidDate(invoice),
+      paidDate: normalizePaidDate(Object.assign({}, invoice, { status: status })),
       isSkonto: normalizeBoolean(invoice.isSkonto),
       category: categories.includes(invoice.category) ? invoice.category : normalizeCategory(invoice.category),
       partnerName: String(invoice.partnerName || "").trim(),
@@ -147,11 +149,9 @@
   function getSummary() {
     var invoices = getInvoices();
     var open = invoices.filter(function (invoice) {
-      return invoice.status !== "Utalva";
+      return !isPaidInvoice(invoice);
     });
-    var paid = invoices.filter(function (invoice) {
-      return invoice.status === "Utalva";
-    });
+    var paid = invoices.filter(isPaidInvoice);
 
     return {
       count: invoices.length,
@@ -267,7 +267,7 @@
     var totalBase = usesAllInvoices ? allInvoices.length : monthInvoices.length;
     var selectedCount = getSelectedInvoiceIds().length;
     var selectableCount = visibleInvoices.filter(function (invoice) {
-      return invoice.status !== "Utalva";
+      return !isPaidInvoice(invoice);
     }).length;
     var helper = activeFilterCount > 0
       ? activeFilterCount + " aktív szűrés miatt " + visibleInvoices.length + " tétel látszik" + (usesAllInvoices ? " az összes hónapból" : "")
@@ -339,7 +339,7 @@
     var h = window.HRPlatform.utils.escapeHtml;
     var money = window.HRPlatform.utils.formatCurrency;
     var date = window.HRPlatform.utils.formatDate;
-    var isPaid = invoice.status === "Utalva";
+    var isPaid = isPaidInvoice(invoice);
     var noteLine = [invoice.note || "", invoice.isSkonto ? "Skontó" : ""].filter(Boolean).join(" | ");
 
     return [
@@ -373,7 +373,7 @@
   function renderStatusCell(invoice) {
     var h = window.HRPlatform.utils.escapeHtml;
     var date = window.HRPlatform.utils.formatDate;
-    var isPaid = invoice.status === "Utalva";
+    var isPaid = isPaidInvoice(invoice);
     var paidLine = isPaid && invoice.paidDate ? '<small class="paid-date">' + date(invoice.paidDate) + "</small>" : "";
 
     return '<span class="status-stack"><span class="status-badge ' + (isPaid ? "success" : "warning") + '">' + h(invoice.status) + "</span>" + paidLine + "</span>";
@@ -390,7 +390,7 @@
 
   function renderPaymentAction(invoice) {
     var h = window.HRPlatform.utils.escapeHtml;
-    if (invoice.status === "Utalva") {
+    if (isPaidInvoice(invoice)) {
       return '<button class="quiet-button" type="button" data-reopen-invoice="' + h(invoice.id) + '">Újranyitás</button>';
     }
 
@@ -517,12 +517,15 @@
     if (localSearchInput) {
       localSearchInput.addEventListener("input", function () {
         var selectionStart = localSearchInput.selectionStart;
+        var scrollX = window.scrollX;
+        var scrollY = window.scrollY;
         uiState.localSearch = localSearchInput.value;
         uiState.selectedIds = {};
         window.HRPlatform.notify();
         setTimeout(function () {
           var refreshedInput = document.getElementById("invoiceLocalSearch");
           if (refreshedInput) {
+            window.scrollTo(scrollX, scrollY);
             refreshedInput.focus();
             refreshedInput.setSelectionRange(selectionStart, selectionStart);
           }
@@ -597,9 +600,13 @@
       }
     }
     if (paymentMethodInput && paymentTermInput) {
-      paymentMethodInput.addEventListener("change", syncPaymentTermControl);
+      paymentMethodInput.addEventListener("change", function () {
+        syncPaymentTermControl();
+        syncImmediatePaymentStatus(form);
+      });
       paymentTermInput.addEventListener("change", syncPaymentTermControl);
       syncPaymentTermControl();
+      syncImmediatePaymentStatus(form);
     }
 
     root.querySelectorAll("[data-sort-key]").forEach(function (button) {
@@ -787,7 +794,7 @@
       return map;
     }, {});
     var autoPaidDate = getInvoiceDefaults().autoPaidDate;
-    var paidDate = status === "Utalva" && autoPaidDate ? todayIsoDate() : "";
+    var paidDate = isPaidStatus(status) && autoPaidDate ? todayIsoDate() : "";
 
     saveInvoices(getInvoices().map(function (invoice) {
       if (!selected[invoice.id]) {
@@ -797,7 +804,7 @@
       return Object.assign({}, invoice, {
         status: status,
         paidDate: paidDate,
-        paidDateAutoDisabled: status === "Utalva" && !autoPaidDate
+        paidDateAutoDisabled: isPaidStatus(status) && !autoPaidDate
       });
     }));
     uiState.selectedIds = {};
@@ -812,7 +819,7 @@
 
   function setVisibleOpenInvoicesSelected(invoices, selected) {
     invoices.forEach(function (invoice) {
-      if (invoice.status === "Utalva") {
+      if (isPaidInvoice(invoice)) {
         return;
       }
 
@@ -826,7 +833,7 @@
 
   function areAllVisibleOpenInvoicesSelected(invoices) {
     var openInvoices = invoices.filter(function (invoice) {
-      return invoice.status !== "Utalva";
+      return !isPaidInvoice(invoice);
     });
 
     return openInvoices.length > 0 && openInvoices.every(function (invoice) {
@@ -1018,7 +1025,7 @@
 
   function getInvoiceSummary(invoices) {
     var open = invoices.filter(function (invoice) {
-      return invoice.status !== "Utalva";
+      return !isPaidInvoice(invoice);
     });
 
     return {
@@ -1268,9 +1275,9 @@
       vatAmount: vatAmount,
       grossAmount: grossAmount,
       paymentMethod: paymentMethod,
-      status: normalizeStatus(raw.status),
+      status: resolveInvoiceStatus(raw.status, paymentMethod),
       dueDate: dueDate,
-      paidDate: resolvePaidDate(raw.paidDate, raw.status),
+      paidDate: resolvePaidDate(raw.paidDate, resolveInvoiceStatus(raw.status, paymentMethod), date),
       paymentTermDays: paymentTermDays,
       isSkonto: normalizeBoolean(raw.isSkonto),
       projectName: normalizeProjectName(raw.projectName, projectNames || []),
@@ -1434,7 +1441,7 @@
 
   function resolvePaidDate(value, status, fallbackDate) {
     var normalized = normalizeDate(value);
-    if (normalizeStatus(status) !== "Utalva") {
+    if (!isPaidStatus(normalizeStatus(status))) {
       return "";
     }
 
@@ -1513,11 +1520,58 @@
 
   function normalizeStatus(value) {
     var text = normalizeText(value);
-    if (text.includes("utalva") || text.includes("befizet") || text.includes("fizetve") || text.includes("paid") || text === "kp") {
+    if (text.includes("utalva")) {
       return "Utalva";
     }
 
+    if (text.includes("kiegyenlit") || text.includes("befizet") || text.includes("fizetve") || text.includes("paid") || text === "kp") {
+      return "Kiegyenlítve";
+    }
+
     return "Fizetésre vár";
+  }
+
+  function resolveInvoiceStatus(rawStatus, paymentMethod) {
+    var normalizedStatus = normalizeStatus(rawStatus);
+    if (normalizedStatus !== "Fizetésre vár") {
+      return normalizedStatus;
+    }
+    if (isAutoSettledPaymentMethod(paymentMethod)) {
+      return "Kiegyenlítve";
+    }
+    return normalizedStatus;
+  }
+
+  function isPaidStatus(status) {
+    return status === "Utalva" || status === "Kiegyenlítve";
+  }
+
+  function isPaidInvoice(invoice) {
+    return isPaidStatus(invoice && invoice.status);
+  }
+
+  function isAutoSettledPaymentMethod(paymentMethod) {
+    return normalizePaymentMethod(paymentMethod) === "Készpénz";
+  }
+
+  function syncImmediatePaymentStatus(form) {
+    if (!form) {
+      return;
+    }
+    var paymentMethodInput = form.querySelector('select[name="paymentMethod"]');
+    var statusInput = form.querySelector('select[name="status"]');
+    var paidDateInput = form.querySelector('input[name="paidDate"]');
+    var dateInput = form.querySelector('input[name="date"]');
+    if (!paymentMethodInput || !statusInput) {
+      return;
+    }
+
+    if (isAutoSettledPaymentMethod(paymentMethodInput.value)) {
+      statusInput.value = "Kiegyenlítve";
+      if (paidDateInput && !paidDateInput.value) {
+        paidDateInput.value = dateInput && dateInput.value ? dateInput.value : todayIsoDate();
+      }
+    }
   }
 
   function normalizeCategory(value) {
@@ -1620,7 +1674,7 @@
 
   function statusLikeValue(value) {
     var text = normalizeText(value);
-    if (text.includes("utalva") || text.includes("befizet") || text.includes("fizetve") || text === "kp") {
+    if (text.includes("utalva") || text.includes("kiegyenlit") || text.includes("befizet") || text.includes("fizetve") || text === "kp") {
       return value;
     }
 
@@ -1646,7 +1700,7 @@
   }
 
   function isOverdue(invoice) {
-    if (!invoice.dueDate || invoice.status === "Utalva") {
+    if (!invoice.dueDate || isPaidInvoice(invoice)) {
       return false;
     }
 
