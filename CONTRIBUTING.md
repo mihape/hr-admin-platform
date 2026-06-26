@@ -1,5 +1,18 @@
 # Contributing
 
+## Workflow
+
+Use the repository workflow for meaningful changes:
+
+1. Open or select a GitHub issue.
+2. Create a focused branch.
+3. Implement and validate the change.
+4. Open a pull request.
+5. Merge to `main`.
+6. Create a release when user-facing behavior changes.
+
+See [docs/WORKFLOW.md](docs/WORKFLOW.md) for the full issue -> branch -> PR -> release process.
+
 ## Development Setup
 
 ```bash
@@ -36,6 +49,10 @@ Demo build with fictional sample data:
 ```bash
 npm run build:win:demo
 ```
+
+## CI Status
+
+The GitHub Actions workflow is documented in [docs/CI.md](docs/CI.md). Current public Actions runs may show failed because the GitHub account is locked for Actions billing; local Windows builds are used for release assets until that account-level issue is resolved.
 
 ## Data Rules
 
