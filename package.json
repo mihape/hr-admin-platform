@@ -6,8 +6,8 @@
   "main": "electron/main.js",
   "scripts": {
     "start": "electron .",
-    "build:win": "node scripts/write-build-config.js release && electron-builder --win --x64",
-    "build:win:demo": "node scripts/write-build-config.js demo && electron-builder --win --x64"
+    "build:win": "node scripts/write-build-config.js release && electron-builder --win --x64 --publish never",
+    "build:win:demo": "node scripts/write-build-config.js demo && electron-builder --win --x64 --publish never"
   },
   "build": {
     "appId": "hu.tz.hr-admin-platform",
