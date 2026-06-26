@@ -75,8 +75,11 @@
       '<section class="settings-panel">',
       "  <h4>Adatok</h4>",
       '  <div class="settings-info-row"><span>Mentés módja</span><strong>' + h(storageLabel(storageInfo)) + "</strong></div>",
+      '  <div class="settings-info-row"><span>Közös adatfájl</span><strong>' + (storageInfo.isShared ? "Bekapcsolva" : "Nincs bekapcsolva") + "</strong></div>",
       storageInfo.dataPath ? '<div class="settings-info-row"><span>Adatfájl</span><strong>' + h(storageInfo.dataPath) + "</strong></div>" : "",
       '  <div class="settings-actions">',
+      '    <button class="secondary-button" type="button" data-choose-shared-data-file>Közös adatfájl kiválasztása</button>',
+      storageInfo.isShared ? '    <button class="quiet-button" type="button" data-use-local-data-file>Helyi adatfájl használata</button>' : "",
       '    <button class="secondary-button" type="button" data-backup-data>Biztonsági mentés</button>',
       '    <button class="secondary-button" type="button" data-restore-data>Mentés visszatöltése</button>',
       '    <button class="secondary-button" type="button" data-export-manifest>Átadási fájl export</button>',
@@ -193,6 +196,39 @@
       showMessage("Partnerlista frissítve a számlákból.");
       window.HRPlatform.notify();
     });
+
+    var sharedDataButton = root.querySelector("[data-choose-shared-data-file]");
+    if (sharedDataButton) {
+      sharedDataButton.addEventListener("click", function () {
+        window.HRPlatform.storage.chooseSharedDataFile().then(function (result) {
+          if (!result || result.canceled) {
+            return;
+          }
+          alert(result.usedExisting ? "Közös adatfájl beállítva. Az app újratöltődik." : "Közös adatfájl létrehozva a jelenlegi adatokkal. Az app újratöltődik.");
+          location.reload();
+        }).catch(function (error) {
+          alert(error.message || "Nem sikerült beállítani a közös adatfájlt.");
+        });
+      });
+    }
+
+    var localDataButton = root.querySelector("[data-use-local-data-file]");
+    if (localDataButton) {
+      localDataButton.addEventListener("click", function () {
+        if (!confirm("Visszaváltasz a helyi adatfájlra? A közös NAS fájl nem törlődik.")) {
+          return;
+        }
+        window.HRPlatform.storage.useLocalDataFile().then(function (result) {
+          if (!result || result.canceled) {
+            return;
+          }
+          alert("Helyi adatfájl beállítva. Az app újratöltődik.");
+          location.reload();
+        }).catch(function (error) {
+          alert(error.message || "Nem sikerült visszaváltani a helyi adatfájlra.");
+        });
+      });
+    }
 
     root.querySelectorAll("[data-save-partner]").forEach(function (button) {
       button.addEventListener("click", function () {
@@ -329,6 +365,9 @@
   }
 
   function storageLabel(info) {
+    if (info.mode === "shared-file") {
+      return "Közös NAS / hálózati adatfájl";
+    }
     return info.mode === "native-file" ? "Helyi Windows adatfájl" : "Böngésző localStorage fallback";
   }
 

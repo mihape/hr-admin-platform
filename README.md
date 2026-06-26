@@ -19,7 +19,7 @@ It is not only a UI project. The repository demonstrates how an internal desktop
 - **Fleet management**: vehicles, refuels, service jobs, cost summaries, and MOT/insurance deadlines.
 - **Utilities / rent settlements**: properties, tenants, utility meter readings, monthly balances, and one-off extra items.
 - **Attendance sheets**: employee list, weekly sheet preview, A4 print workflow, and CSV export.
-- **Settings and backup**: company/user defaults, invoice defaults, local backup, and restore.
+- **Settings and backup**: company/user defaults, invoice defaults, local/shared data file mode, backup, and restore.
 
 ## Screenshots
 
@@ -46,7 +46,7 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for details.
 Use the default release installer for a clean public release:
 
 ```text
-release-assets/HR Admin Platform Setup 0.2.0.exe
+release-assets/HR Admin Platform Setup 0.3.0.exe
 ```
 
 The installer uses a classic Windows setup wizard and allows choosing the installation directory. A fresh machine starts with an empty local database.
@@ -54,14 +54,14 @@ The installer uses a classic Windows setup wizard and allows choosing the instal
 The demo installer is only for internal testing:
 
 ```text
-release-assets/HR Admin Platform Setup 0.2.0 Demo.exe
+release-assets/HR Admin Platform Setup 0.3.0 Demo.exe
 ```
 
 See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for sysadmin-focused deployment, update, uninstall, and backup notes.
 
 ## Security Notes
 
-This is a local-only desktop app. It does not open network ports, does not sync to cloud storage, and does not include built-in authentication or RBAC. Data protection depends on the Windows user profile, filesystem permissions, and operational backup practices.
+This is a local-first desktop app. It does not open network ports, does not include built-in authentication or RBAC, and does not sync to cloud storage by itself. Data can remain in the Windows user profile or be pointed to a NAS/shared JSON file. Data protection depends on Windows/NAS permissions, filesystem protection, and operational backup practices.
 
 See [docs/SECURITY.md](docs/SECURITY.md) and [SECURITY.md](SECURITY.md).
 
@@ -95,8 +95,8 @@ npm run build:win:demo
 
 The `release-assets` folder is included as a handoff convenience, but installer EXE files are ignored by `.gitignore` so they are not accidentally committed into repository history. Upload installers as GitHub Release assets instead.
 
-- `HR Admin Platform Setup 0.2.0.exe` - default release installer, empty startup.
-- `HR Admin Platform Setup 0.2.0 Demo.exe` - demo build with fictional sample data.
+- `HR Admin Platform Setup 0.3.0.exe` - default release installer, empty startup.
+- `HR Admin Platform Setup 0.3.0 Demo.exe` - demo build with fictional sample data.
 - `CHECKSUMS.txt` - SHA256 checksums.
 
 ## Hungarian Summary
@@ -112,7 +112,7 @@ Részletes magyar használati útmutató: [HASZNALATI_UTMUTATO.md](HASZNALATI_UT
 ```text
 HR Admin Platform - Local-first Windows desktop app for internal business administration.
 
-Built and packaged an Electron-based Windows application covering invoice tracking, fleet records, attendance sheets, and utilities/rent settlements. The project focuses on IT operations readiness: assisted NSIS installer, release/demo build modes, local JSON data storage, backup/restore flow, deployment documentation, security notes, and GitHub Actions release automation.
+Built and packaged an Electron-based Windows application covering invoice tracking, fleet records, attendance sheets, and utilities/rent settlements. The project focuses on IT operations readiness: assisted NSIS installer, release/demo build modes, local or NAS-hosted JSON data storage, backup/restore flow, deployment documentation, security notes, and GitHub Actions release automation.
 
 Portfolio relevance: demonstrates business alignment, Windows desktop deployment, local data handling, release management, and documentation practices for Junior System Administrator / IT Support Engineer roles.
 ```

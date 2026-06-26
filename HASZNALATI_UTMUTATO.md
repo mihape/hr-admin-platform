@@ -6,7 +6,7 @@ A futtatható app a következő mappából indítható:
 
 `dist/win-unpacked/HR Admin Platform.exe`
 
-Az app helyi Windows adatfájlba ment, ha a telepített Electron környezetben fut. Böngészős tesztelésnél localStorage fallbacket használ, ezért az éles napi használathoz a Windows appot érdemes indítani.
+Az app alapból helyi Windows adatfájlba ment, ha a telepített Electron környezetben fut. A Beállításokban választható közös NAS/hálózati adatfájl is. Böngészős tesztelésnél localStorage fallbacket használ, ezért az éles napi használathoz a Windows appot érdemes indítani.
 
 ## 2. Első beállítás
 
@@ -227,9 +227,26 @@ A **Beállítások** vagy az **Áttekintés / Adatok és átadás** részen elé
 
 Érdemes rendszeresen biztonsági mentést készíteni, főleg nagyobb import, adattisztítás vagy végleges átadás előtt.
 
+### Közös NAS adatfájl
+
+A **Beállítások / Adatok** részen a **Közös adatfájl kiválasztása** gombbal megadható egy NAS vagy Windows hálózati megosztáson lévő JSON fájl.
+
+Példa:
+
+`\\nas-neve\megosztas\hr-admin-data.json`
+
+Ha a kiválasztott fájl még nem létezik, az app létrehozza a jelenlegi adatokkal. Ha már létezik, akkor ellenőrzi, hogy HR Admin adatfájl-e, majd újratöltés után azt használja.
+
+Javaslat:
+
+- a NAS mappához csak az kapjon írási jogot, aki tényleg szerkesztheti az adatokat
+- egyszerre lehetőleg egy ember szerkessze ugyanazokat a rekordokat
+- a NAS fájlról készüljön rendszeres külön mentés
+- ha a NAS nem elérhető, előbb a hálózati kapcsolatot kell helyreállítani vagy vissza kell váltani helyi adatfájlra
+
 ## 9. Ismert korlátok
 
-- A jelenlegi verzió helyi admin app, nem többfelhasználós szerveres rendszer.
+- A közös NAS adatfájl nem teljes többfelhasználós szerveres rendszer, hanem közös JSON fájl rövid írási zárral.
 - Böngészőből tesztelve az adatmentés localStorage fallbacket használ.
 - A végleges installer buildhez natív Windows buildkörnyezet vagy megfelelő Wine környezet kell.
 

@@ -438,6 +438,9 @@
     if (info.mode === "native-file") {
       return "Mentés: helyi Windows adatfájl" + (info.dataPath ? " - " + info.dataPath : "");
     }
+    if (info.mode === "shared-file") {
+      return "Mentés: közös adatfájl" + (info.dataPath ? " - " + info.dataPath : "");
+    }
     return "Mentés: böngésző localStorage fallback";
   }
 

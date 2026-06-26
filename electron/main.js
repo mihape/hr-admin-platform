@@ -3,14 +3,59 @@ const fs = require("fs");
 const path = require("path");
 
 const DATA_FILE_NAME = "hr-admin-data.json";
+const CONFIG_FILE_NAME = "hr-admin-storage-config.json";
+const LOCK_STALE_MS = 5 * 60 * 1000;
 let mainWindow = null;
 
-function getDataPath() {
+function getDefaultDataPath() {
   return path.join(app.getPath("userData"), DATA_FILE_NAME);
 }
 
-function ensureDataFile() {
+function getConfigPath() {
+  return path.join(app.getPath("userData"), CONFIG_FILE_NAME);
+}
+
+function readStorageConfig() {
+  const configPath = getConfigPath();
+  if (!fs.existsSync(configPath)) {
+    return {};
+  }
+  try {
+    const parsed = JSON.parse(fs.readFileSync(configPath, "utf8"));
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch (error) {
+    return {};
+  }
+}
+
+function writeStorageConfig(config) {
+  const configPath = getConfigPath();
+  const dir = path.dirname(configPath);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+  fs.writeFileSync(configPath, JSON.stringify(config || {}, null, 2), "utf8");
+}
+
+function getDataPath() {
+  const config = readStorageConfig();
+  return config.sharedDataPath || getDefaultDataPath();
+}
+
+function getStorageInfo() {
+  const config = readStorageConfig();
   const dataPath = getDataPath();
+  return {
+    dataPath,
+    defaultDataPath: getDefaultDataPath(),
+    sharedDataPath: config.sharedDataPath || "",
+    isShared: Boolean(config.sharedDataPath),
+    configPath: getConfigPath(),
+    lockPath: dataPath + ".lock"
+  };
+}
+
+function ensureDataFile(dataPath = getDataPath()) {
   const dir = path.dirname(dataPath);
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
@@ -21,8 +66,8 @@ function ensureDataFile() {
   return dataPath;
 }
 
-function readDatabase() {
-  const dataPath = ensureDataFile();
+function readDatabaseFromPath(dataPath) {
+  ensureDataFile(dataPath);
   try {
     const parsed = JSON.parse(fs.readFileSync(dataPath, "utf8"));
     if (!parsed.collections) {
@@ -40,11 +85,84 @@ function readDatabase() {
   }
 }
 
+function readDatabase() {
+  return readDatabaseFromPath(getDataPath());
+}
+
+function acquireWriteLock(dataPath) {
+  const lockPath = dataPath + ".lock";
+  try {
+    const fd = fs.openSync(lockPath, "wx");
+    fs.writeFileSync(fd, JSON.stringify({
+      pid: process.pid,
+      createdAt: new Date().toISOString(),
+      hostname: require("os").hostname()
+    }, null, 2), "utf8");
+    return function releaseLock() {
+      fs.closeSync(fd);
+      if (fs.existsSync(lockPath)) {
+        fs.unlinkSync(lockPath);
+      }
+    };
+  } catch (error) {
+    if (error && error.code === "EEXIST") {
+      const stat = fs.statSync(lockPath);
+      if (Date.now() - stat.mtimeMs > LOCK_STALE_MS) {
+        fs.unlinkSync(lockPath);
+        return acquireWriteLock(dataPath);
+      }
+      throw new Error("Az adatfájl éppen használatban van egy másik gépen. Próbáld újra pár másodperc múlva.");
+    }
+    throw error;
+  }
+}
+
+function writeDatabaseToPath(database, dataPath) {
+  ensureDataFile(dataPath);
+  const releaseLock = acquireWriteLock(dataPath);
+  const tmpPath = dataPath + "." + process.pid + "." + Date.now() + ".tmp";
+  try {
+    fs.writeFileSync(tmpPath, JSON.stringify(database, null, 2), "utf8");
+    fs.renameSync(tmpPath, dataPath);
+  } finally {
+    if (fs.existsSync(tmpPath)) {
+      fs.unlinkSync(tmpPath);
+    }
+    releaseLock();
+  }
+}
+
 function writeDatabase(database) {
-  const dataPath = ensureDataFile();
-  const tmpPath = dataPath + ".tmp";
-  fs.writeFileSync(tmpPath, JSON.stringify(database, null, 2), "utf8");
-  fs.renameSync(tmpPath, dataPath);
+  writeDatabaseToPath(database, getDataPath());
+}
+
+function validateDatabaseFile(filePath) {
+  const parsed = JSON.parse(fs.readFileSync(filePath, "utf8"));
+  if (!parsed || typeof parsed !== "object" || !parsed.collections) {
+    throw new Error("A kiválasztott fájl nem HR Admin adatfájl.");
+  }
+  return parsed;
+}
+
+function configureSharedDataFile(sharedDataPath) {
+  const currentDatabase = readDatabase();
+  const dir = path.dirname(sharedDataPath);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+
+  const usedExisting = fs.existsSync(sharedDataPath);
+  if (usedExisting) {
+    validateDatabaseFile(sharedDataPath);
+  } else {
+    writeDatabaseToPath(currentDatabase, sharedDataPath);
+  }
+
+  writeStorageConfig({
+    sharedDataPath,
+    updatedAt: new Date().toISOString()
+  });
+  return { dataPath: sharedDataPath, usedExisting };
 }
 
 function createWindow() {
@@ -80,7 +198,7 @@ ipcMain.on("storage:set", (event, key, value) => {
 });
 
 ipcMain.on("storage:info", (event) => {
-  event.returnValue = { dataPath: ensureDataFile() };
+  event.returnValue = getStorageInfo();
 });
 
 ipcMain.handle("storage:exportBackup", async () => {
@@ -113,6 +231,26 @@ ipcMain.handle("storage:importBackup", async () => {
   }
   writeDatabase(parsed);
   return { canceled: false, filePath: sourcePath };
+});
+
+ipcMain.handle("storage:chooseSharedDataFile", async () => {
+  const result = await dialog.showSaveDialog(mainWindow, {
+    title: "Közös adatfájl kiválasztása vagy létrehozása",
+    defaultPath: DATA_FILE_NAME,
+    filters: [{ name: "HR Admin adatfájl", extensions: ["json"] }]
+  });
+  if (result.canceled || !result.filePath) {
+    return { canceled: true };
+  }
+  return Object.assign({ canceled: false }, configureSharedDataFile(result.filePath));
+});
+
+ipcMain.handle("storage:useLocalDataFile", async () => {
+  writeStorageConfig({
+    updatedAt: new Date().toISOString()
+  });
+  ensureDataFile(getDefaultDataPath());
+  return { canceled: false, dataPath: getDefaultDataPath() };
 });
 
 app.whenReady().then(() => {

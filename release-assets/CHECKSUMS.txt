@@ -1,2 +1,2 @@
-98a07255d7599e15b7619b782111abe9d7bd7dbbe33ac68936e84195048faa76  release-assets/HR Admin Platform Setup 0.2.0.exe
-94107752599169f47a21df3e23805373cc12f1dfa290c1b8aa3a5229ba769015  release-assets/HR Admin Platform Setup 0.2.0 Demo.exe
+0b7d14884485a65991e5ed92fd5aaf15f67e515ce147d89e9c1b435f974dc3da  release-assets/HR Admin Platform Setup 0.3.0.exe
+c83c66ccefd24afe3315b503dd3b6aa60c762868fb48e672dc6324bc111e5edf  release-assets/HR Admin Platform Setup 0.3.0 Demo.exe

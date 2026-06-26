@@ -1,6 +1,6 @@
 (function () {
   var APP_KEY = "hr-admin-platform";
-  var APP_VERSION = "0.2.0";
+  var APP_VERSION = "0.3.0";
   var runtimeConfig = window.HRAdminConfig || {};
   var modules = [];
   var listeners = [];
@@ -220,7 +220,8 @@
 
   function getStorageInfo() {
     if (window.HRAdminNativeStorage && typeof window.HRAdminNativeStorage.getInfo === "function") {
-      return Object.assign({ mode: "native-file" }, window.HRAdminNativeStorage.getInfo());
+      var info = window.HRAdminNativeStorage.getInfo();
+      return Object.assign({ mode: info && info.isShared ? "shared-file" : "native-file" }, info);
     }
     return { mode: "browser-localStorage" };
   }
@@ -247,6 +248,20 @@
       return window.HRAdminNativeStorage.importBackup();
     }
     return Promise.reject(new Error("A visszatöltés csak a Windows appban érhető el."));
+  }
+
+  function chooseSharedDataFile() {
+    if (window.HRAdminNativeStorage && typeof window.HRAdminNativeStorage.chooseSharedDataFile === "function") {
+      return window.HRAdminNativeStorage.chooseSharedDataFile();
+    }
+    return Promise.reject(new Error("A közös adatfájl választása csak a Windows appban érhető el."));
+  }
+
+  function useLocalDataFile() {
+    if (window.HRAdminNativeStorage && typeof window.HRAdminNativeStorage.useLocalDataFile === "function") {
+      return window.HRAdminNativeStorage.useLocalDataFile();
+    }
+    return Promise.reject(new Error("A helyi adatfájlra váltás csak a Windows appban érhető el."));
   }
 
   function readSettings() {
@@ -302,7 +317,9 @@
       addItem: addItem,
       getInfo: getStorageInfo,
       exportBackup: exportBackup,
-      importBackup: importBackup
+      importBackup: importBackup,
+      chooseSharedDataFile: chooseSharedDataFile,
+      useLocalDataFile: useLocalDataFile
     },
     settings: {
       get: function () {

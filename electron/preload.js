@@ -16,5 +16,11 @@ contextBridge.exposeInMainWorld("HRAdminNativeStorage", {
   },
   importBackup() {
     return ipcRenderer.invoke("storage:importBackup");
+  },
+  chooseSharedDataFile() {
+    return ipcRenderer.invoke("storage:chooseSharedDataFile");
+  },
+  useLocalDataFile() {
+    return ipcRenderer.invoke("storage:useLocalDataFile");
   }
 });

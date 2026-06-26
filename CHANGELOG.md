@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.0 - 2026-06-26
+
+- Beállítások modul: választható közös NAS/hálózati JSON adatfájl.
+- Tárolás: külön `hr-admin-storage-config.json` konfiguráció az aktív adatfájl útvonalához.
+- Tárolás: rövid `.lock` fájl írás közben, hogy kisebb legyen az egyszerre írás kockázata.
+- Beállítások modul: aktív adatfájl útvonal és közös adatfájl állapot megjelenítése.
+- Beállítások modul: visszaváltás helyi adatfájlra.
+- Dokumentáció: NAS/shared data file deployment, security és architecture kiegészítés.
+- Új 0.3.0 release és demo installer build.
+
 ## 0.2.0 - 2026-06-25
 
 - Public portfolio pack with English-first README and Hungarian summary.
