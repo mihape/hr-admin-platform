@@ -25,6 +25,15 @@ publishing is handled only by the dedicated `softprops/action-gh-release` step,
 so pull request and `main` builds do not require a separate electron-builder
 GitHub token.
 
+Release asset filenames are normalized before checksum generation. The
+filenames inside `CHECKSUMS.txt` must match the filenames shown on the GitHub
+Release page, for example:
+
+```text
+HR.Admin.Platform.Setup.0.3.4.exe
+HR.Admin.Platform.Setup.0.3.4.Demo.exe
+```
+
 ## Current Status
 
 GitHub Actions is enabled and the workflow has successfully completed on pull requests. A successful PR run verifies:
