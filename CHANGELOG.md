@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.4 - 2026-06-26
+
+- Release workflow: a feltöltött Windows installer assetek szóközmentes, pontozott fájlnevet kapnak.
+- Release workflow: a `CHECKSUMS.txt` tartalma ugyanazokat a fájlneveket használja, amelyek GitHub Release assetként megjelennek.
+- Dokumentáció: telepítő asset hivatkozások frissítése a tényleges GitHub Release névformára.
+
 ## 0.3.3 - 2026-06-26
 
 - CI: az installer build parancsok explicit `--publish never` kapcsolót kaptak, így az `electron-builder` nem próbál közvetlenül GitHubra publikálni.
