@@ -12,7 +12,7 @@ The workflow is designed to:
 
 - run on pull requests
 - run on pushes to `main`
-- run on version tags such as `v0.3.2`
+- run on version tags such as `v0.3.5`
 - install dependencies with `npm ci`
 - run JavaScript syntax checks
 - build the Windows release installer
@@ -30,13 +30,13 @@ filenames inside `CHECKSUMS.txt` must match the filenames shown on the GitHub
 Release page, for example:
 
 ```text
-HR.Admin.Platform.Setup.0.3.4.exe
-HR.Admin.Platform.Setup.0.3.4.Demo.exe
+HR.Admin.Platform.Setup.0.3.5.exe
+HR.Admin.Platform.Setup.0.3.5.Demo.exe
 ```
 
 ## Current Status
 
-GitHub Actions is enabled and the workflow has successfully completed on pull requests. A successful PR run verifies:
+GitHub Actions is enabled and the workflow has successfully completed on pull requests, `main` pushes, and tag-based release builds. A successful PR run verifies:
 
 - dependency installation with `npm ci`
 - JavaScript syntax checks
@@ -53,6 +53,13 @@ result: success
 artifact: hr-admin-platform-windows
 ```
 
+The tag-based release flow has also been validated. A successful tag run
+publishes:
+
+- `HR.Admin.Platform.Setup.<version>.exe`
+- `HR.Admin.Platform.Setup.<version>.Demo.exe`
+- `CHECKSUMS.txt`
+
 ## Previous GitHub Actions Limitation
 
 Earlier Actions runs did not start because the repository owner account reported:
@@ -67,18 +74,31 @@ That was an account-level GitHub Actions/billing limitation, not an application 
 
 Use Windows Node.js for installer builds:
 
-```bash
+```powershell
 npm ci
 npm run build:win
+New-Item -ItemType Directory -Force artifacts | Out-Null
+$version = node -p "require('./package.json').version"
+Copy-Item "dist/HR Admin Platform Setup $version.exe" "artifacts/HR.Admin.Platform.Setup.$version.exe"
 npm run build:win:demo
+Copy-Item "dist/HR Admin Platform Setup $version.exe" "artifacts/HR.Admin.Platform.Setup.$version.Demo.exe"
+Get-ChildItem artifacts -Filter "*.exe" | ForEach-Object {
+  $hash = Get-FileHash $_.FullName -Algorithm SHA256
+  "$($hash.Hash.ToLower())  $($_.Name)"
+} | Set-Content "artifacts/CHECKSUMS.txt"
 ```
 
-After building, generate checksums and upload installers as GitHub Release assets if Actions is unavailable.
+The release installer must be copied before `npm run build:win:demo`, because
+both build modes write the same `dist/HR Admin Platform Setup $version.exe`
+filename. Upload the files from `artifacts/` as GitHub Release assets if
+Actions is unavailable.
 
-## Follow-up Plan
+## Release Validation Status
 
-- Validate the next tag-based release build.
-- Close the existing release automation validation issue when the workflow produces installer and checksum assets.
+The release automation validation issue was completed after a successful
+tag-based release build. During validation, a filename mismatch between GitHub
+Release assets and `CHECKSUMS.txt` entries was found and fixed by normalizing
+artifact names before checksum generation.
 
 ## Troubleshooting Notes
 
@@ -94,4 +114,4 @@ step upload assets on `v*` tags.
 
 ## Magyar összefoglaló
 
-A CI workflow működik, és PR-en már sikeresen lefutott: dependency telepítés, syntax check, Windows installer build, checksum és artifact feltöltés. Korábban volt GitHub account/billing lock, de ez nem apphiba volt, és már rendezve lett.
+A CI workflow működik, és PR-en, `main` pushon, valamint tag alapú release builden is sikeresen lefutott: dependency telepítés, syntax check, Windows installer build, checksum és release asset feltöltés. Korábban volt GitHub account/billing lock, de ez nem apphiba volt, és már rendezve lett.

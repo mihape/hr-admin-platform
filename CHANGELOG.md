@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.5 - 2026-06-26
+
+- Runtime: az app verziója a build konfigurációból érkezik, amely a `package.json` verzióját használja.
+- Runtime: a Beállítások "Verzió" mező és a module manifest már a kiadott installer verzióját mutatja.
+- Dokumentáció: a helyi fallback build folyamat előbb külön artifactként menti a release installert, és csak utána építi a demo installert.
+
 ## 0.3.4 - 2026-06-26
 
 - Release workflow: a feltöltött Windows installer assetek szóközmentes, pontozott fájlnevet kapnak.

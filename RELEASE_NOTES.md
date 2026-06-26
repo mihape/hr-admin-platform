@@ -1,7 +1,9 @@
-# HR Admin Platform 0.3.4
+# HR Admin Platform 0.3.5
 
 ## Highlights
 
+- Fixes runtime version reporting so Settings and exported module manifests match the installer/package version.
+- Improves local fallback build documentation so release and demo installers are preserved separately.
 - Uses release asset filenames that match `CHECKSUMS.txt`.
 - Validates the GitHub Actions release path after fixing the installer build publish behavior.
 - Keeps installer publishing in the dedicated GitHub Release workflow step instead of `electron-builder` auto-publishing.
@@ -12,7 +14,7 @@
 
 Upload this as the main GitHub Release installer:
 
-`release-assets/HR.Admin.Platform.Setup.0.3.4.exe`
+`release-assets/HR.Admin.Platform.Setup.0.3.5.exe`
 
 It starts with an empty local database on a fresh machine. Existing users can switch to a NAS/shared data file from Settings.
 
@@ -20,7 +22,7 @@ It starts with an empty local database on a fresh machine. Existing users can sw
 
 Optional internal testing asset:
 
-`release-assets/HR.Admin.Platform.Setup.0.3.4.Demo.exe`
+`release-assets/HR.Admin.Platform.Setup.0.3.5.Demo.exe`
 
 This build starts with fictional sample data. Do not use it as the default public download.
 
@@ -30,7 +32,7 @@ Local-first Windows desktop admin application for invoices, fleet records, atten
 
 ## Installation
 
-1. Download `HR.Admin.Platform.Setup.0.3.4.exe`.
+1. Download `HR.Admin.Platform.Setup.0.3.5.exe`.
 2. Run the installer.
 3. Choose the installation directory.
 4. Launch the app at the end of setup or from the Start menu.
