@@ -13,6 +13,14 @@ This project is presented as a practical IT operations portfolio piece for remot
 
 It is not only a UI project. The repository demonstrates how an internal desktop app can be prepared for handoff: assisted installer builds, release/demo modes, checksum generation, deployment notes, security limitations, and GitHub Actions automation.
 
+## What This Demonstrates
+
+- Windows desktop packaging with a classic NSIS setup wizard.
+- Local-first data handling with optional NAS/shared JSON file mode.
+- Release/demo build separation and SHA256 checksums.
+- Backup, restore, deployment, security, and workflow documentation.
+- Portfolio-style GitHub process: issues, pull requests, milestones, and releases.
+
 ## Features
 
 - **Invoice administration**: manual entry, CSV import, saved partners, project hints, focus view, filtering, and bulk settlement.
@@ -25,11 +33,9 @@ It is not only a UI project. The repository demonstrates how an internal desktop
 
 The screenshots below use the release build with empty/sanitized data.
 
-![Overview](docs/screenshots/overview.png)
-
-![Invoices](docs/screenshots/invoices.png)
-
-![Utilities](docs/screenshots/utilities.png)
+| Overview | Invoices | Utilities / Rent |
+| --- | --- | --- |
+| ![Overview dashboard](docs/screenshots/overview.png) | ![Invoice management](docs/screenshots/invoices.png) | ![Utilities and rent settlements](docs/screenshots/utilities.png) |
 
 ## Architecture and Tech Stack
 
@@ -58,6 +64,12 @@ release-assets/HR Admin Platform Setup 0.3.2 Demo.exe
 ```
 
 See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for sysadmin-focused deployment, update, uninstall, and backup notes.
+
+## Project Workflow and CI
+
+This repository is maintained with an issue -> branch -> pull request -> release workflow. See [docs/WORKFLOW.md](docs/WORKFLOW.md).
+
+The GitHub Actions workflow is present for Windows installer automation and has successfully built the Windows installer on pull requests. See [docs/CI.md](docs/CI.md).
 
 ## Security Notes
 
@@ -108,6 +120,8 @@ Portfolio szempontból azt mutatja meg, hogy nemcsak egy üzleti folyamatot lehe
 Részletes magyar használati útmutató: [HASZNALATI_UTMUTATO.md](HASZNALATI_UTMUTATO.md)
 
 ## LinkedIn Project Description
+
+Copy-ready LinkedIn text is available in [docs/LINKEDIN_PROJECT.md](docs/LINKEDIN_PROJECT.md).
 
 ```text
 HR Admin Platform - Local-first Windows desktop app for internal business administration.
