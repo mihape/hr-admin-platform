@@ -52,7 +52,7 @@ npm run build:win:demo
 
 ## CI Status
 
-The GitHub Actions workflow is documented in [docs/CI.md](docs/CI.md). Current public Actions runs may show failed because the GitHub account is locked for Actions billing; local Windows builds are used for release assets until that account-level issue is resolved.
+The GitHub Actions workflow is documented in [docs/CI.md](docs/CI.md). Pull requests should wait for the Windows installer workflow to finish unless the failure is explicitly documented as account- or GitHub-side infrastructure.
 
 ## Data Rules
 

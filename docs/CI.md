@@ -20,15 +20,34 @@ The workflow is designed to:
 - generate SHA256 checksums
 - upload release assets on version tags
 
-## Current GitHub Actions Limitation
+## Current Status
 
-At the time of writing, GitHub Actions runs are not starting because the repository owner account reports:
+GitHub Actions is enabled and the workflow has successfully completed on pull requests. A successful PR run verifies:
+
+- dependency installation with `npm ci`
+- JavaScript syntax checks
+- Windows release installer build
+- checksum generation
+- build artifact upload
+
+Example verified run:
+
+```text
+Build Windows Installer / build
+event: pull_request
+result: success
+artifact: hr-admin-platform-windows
+```
+
+## Previous GitHub Actions Limitation
+
+Earlier Actions runs did not start because the repository owner account reported:
 
 ```text
 The job was not started because your account is locked due to a billing issue.
 ```
 
-This is an account-level GitHub Actions/billing limitation, not an application build failure. Local Windows builds have been used for the published release assets until Actions execution is available again.
+That was an account-level GitHub Actions/billing limitation, not an application build failure. It has since been resolved.
 
 ## Local Build Fallback
 
@@ -40,15 +59,13 @@ npm run build:win
 npm run build:win:demo
 ```
 
-After building, generate checksums and upload installers as GitHub Release assets.
+After building, generate checksums and upload installers as GitHub Release assets if Actions is unavailable.
 
-## Resolution Plan
+## Follow-up Plan
 
-- Resolve GitHub account billing/Actions lock.
-- Re-run the workflow manually with `workflow_dispatch`.
-- Validate the first tag-based release build.
+- Validate the next tag-based release build.
 - Close the existing release automation validation issue when the workflow produces installer and checksum assets.
 
 ## Magyar összefoglaló
 
-A CI workflow készen van, de a GitHub jelenleg account/billing okból nem indítja el a jobokat. Ez nem apphiba. Amíg ez nincs rendezve, a release telepítők helyi Windows buildből készülnek.
+A CI workflow működik, és PR-en már sikeresen lefutott: dependency telepítés, syntax check, Windows installer build, checksum és artifact feltöltés. Korábban volt GitHub account/billing lock, de ez nem apphiba volt, és már rendezve lett.

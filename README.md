@@ -69,7 +69,7 @@ See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for sysadmin-focused deployment, up
 
 This repository is maintained with an issue -> branch -> pull request -> release workflow. See [docs/WORKFLOW.md](docs/WORKFLOW.md).
 
-The GitHub Actions workflow is present for Windows installer automation. Current public runs may show failed because GitHub reports an account-level Actions billing lock, not an application build failure. See [docs/CI.md](docs/CI.md).
+The GitHub Actions workflow is present for Windows installer automation and has successfully built the Windows installer on pull requests. See [docs/CI.md](docs/CI.md).
 
 ## Security Notes
 
