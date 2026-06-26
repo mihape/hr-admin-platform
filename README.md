@@ -75,7 +75,7 @@ The GitHub Actions workflow is present for Windows installer automation and has 
 
 This is a local-first desktop app. It does not open network ports, does not include built-in authentication or RBAC, and does not sync to cloud storage by itself. Data can remain in the Windows user profile or be pointed to a NAS/shared JSON file. Data protection depends on Windows/NAS permissions, filesystem protection, and operational backup practices.
 
-See [docs/SECURITY.md](docs/SECURITY.md) and [SECURITY.md](SECURITY.md).
+See [docs/SECURITY.md](docs/SECURITY.md), [docs/ENCRYPTION_RESEARCH.md](docs/ENCRYPTION_RESEARCH.md), and [SECURITY.md](SECURITY.md).
 
 ## Development
 
