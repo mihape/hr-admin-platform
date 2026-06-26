@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.3 - 2026-06-26
+
+- CI: az installer build parancsok explicit `--publish never` kapcsolót kaptak, így az `electron-builder` nem próbál közvetlenül GitHubra publikálni.
+- CI: a GitHub Release asset feltöltés továbbra is a dedikált workflow release lépésben történik.
+- Dokumentáció: portfolio/workflow, PR template, issue template és CI troubleshooting kiegészítések.
+- Dokumentáció: DPAPI/Electron safeStorage helyi adattitkosítási kutatás és NAS/shared data mode biztonsági megfontolások.
+
 ## 0.3.2 - 2026-06-26
 
 - Számla modul: a dedikált számlakereső gépeléskor már nem rajzolja újra a teljes modult, csak a számlatáblát és a számlálókat frissíti.
