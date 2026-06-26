@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.2 - 2026-06-26
+
+- Számla modul: a dedikált számlakereső gépeléskor már nem rajzolja újra a teljes modult, csak a számlatáblát és a számlálókat frissíti.
+- QA: Chrome/CDP ellenőrzés szerint gépelés előtt és után azonos maradt a scrollpozíció.
+
 ## 0.3.1 - 2026-06-26
 
 - Számla modul: a dedikált számlakereső gépelés közben nem ugrik vissza az oldal tetejére.

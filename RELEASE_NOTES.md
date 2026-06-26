@@ -1,17 +1,16 @@
-# HR Admin Platform 0.3.1
+# HR Admin Platform 0.3.2
 
 ## Highlights
 
-- Fixed invoice search scroll jumping while typing.
-- Added cash payment handling: same-day due date and automatic `Kiegyenlítve` status.
-- Paid/open invoice summaries now treat both `Utalva` and `Kiegyenlítve` as paid states.
+- Fixed invoice search scroll jumping by updating only the invoice results table while typing.
+- Keeps the cash payment handling from 0.3.1: same-day due date and automatic `Kiegyenlítve` status.
 - Includes the shared NAS/network JSON data file mode from 0.3.0.
 
 ## Recommended release asset
 
 Upload this as the main GitHub Release installer:
 
-`release-assets/HR Admin Platform Setup 0.3.1.exe`
+`release-assets/HR Admin Platform Setup 0.3.2.exe`
 
 It starts with an empty local database on a fresh machine. Existing users can switch to a NAS/shared data file from Settings.
 
@@ -19,7 +18,7 @@ It starts with an empty local database on a fresh machine. Existing users can sw
 
 Optional internal testing asset:
 
-`release-assets/HR Admin Platform Setup 0.3.1 Demo.exe`
+`release-assets/HR Admin Platform Setup 0.3.2 Demo.exe`
 
 This build starts with fictional sample data. Do not use it as the default public download.
 
@@ -29,7 +28,7 @@ Local-first Windows desktop admin application for invoices, fleet records, atten
 
 ## Installation
 
-1. Download `HR Admin Platform Setup 0.3.1.exe`.
+1. Download `HR Admin Platform Setup 0.3.2.exe`.
 2. Run the installer.
 3. Choose the installation directory.
 4. Launch the app at the end of setup or from the Start menu.

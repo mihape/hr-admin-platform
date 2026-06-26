@@ -260,6 +260,23 @@
   }
 
   function renderInvoiceTools(visibleInvoices, monthInvoices, allInvoices, context) {
+    var toolState = getInvoiceToolState(visibleInvoices, monthInvoices, allInvoices, context);
+
+    return [
+      '<section class="invoice-toolbar" aria-label="Számla szűrők">',
+      '  <label class="field compact-field invoice-search-field"><span>Számla keresés</span><input id="invoiceLocalSearch" type="search" placeholder="Partner, sorszám, projekt..." value="' + hAttr(uiState.localSearch) + '" /></label>',
+      '  <div class="field compact-field"><label>Státusz</label>' + filterSelect("invoiceStatusFilter", "status", ["all"].concat(statuses), uiState.status, "Összes státusz") + "</div>",
+      '  <div class="field compact-field"><label>Fizetési mód</label>' + filterSelect("invoicePaymentFilter", "paymentMethod", ["all"].concat(paymentMethods), uiState.paymentMethod, "Összes mód") + "</div>",
+      '  <div class="toolbar-summary" data-invoice-toolbar-summary><strong>' + visibleInvoices.length + " / " + toolState.totalBase + '</strong><span>' + toolState.helper + '</span></div>',
+      '  <div class="bulk-actions" data-invoice-bulk-actions><span>' + toolState.selectedCount + " kijelölve</span>" + '<button class="settle-button" type="button" id="invoiceBulkSettle" ' + (toolState.selectedCount ? "" : "disabled") + '>Kiegyenlítés</button></div>',
+      '<button class="secondary-button" type="button" id="invoiceSelectVisible" ' + (toolState.selectableCount ? "" : "disabled") + '>Láthatók kijelölése</button>',
+      '<button class="secondary-button" type="button" id="invoiceClearFilters">Szűrők törlése</button>',
+      '<div data-invoice-filter-hint>' + toolState.hint + '</div>',
+      "</section>"
+    ].join("");
+  }
+
+  function getInvoiceToolState(visibleInvoices, monthInvoices, allInvoices, context) {
     var activeFilterCount = countActiveInvoiceFilters(context);
     var hasGlobalSearch = hasInvoiceGlobalSearch(context);
     var hasLocalSearch = hasInvoiceLocalSearch();
@@ -280,18 +297,13 @@
       hint = '<p class="filter-hint">Ebben a hónapban van ' + monthInvoices.length + ' számla, de a keresés vagy szűrők jelenleg elrejtik.</p>';
     }
 
-    return [
-      '<section class="invoice-toolbar" aria-label="Számla szűrők">',
-      '  <label class="field compact-field invoice-search-field"><span>Számla keresés</span><input id="invoiceLocalSearch" type="search" placeholder="Partner, sorszám, projekt..." value="' + hAttr(uiState.localSearch) + '" /></label>',
-      '  <div class="field compact-field"><label>Státusz</label>' + filterSelect("invoiceStatusFilter", "status", ["all"].concat(statuses), uiState.status, "Összes státusz") + "</div>",
-      '  <div class="field compact-field"><label>Fizetési mód</label>' + filterSelect("invoicePaymentFilter", "paymentMethod", ["all"].concat(paymentMethods), uiState.paymentMethod, "Összes mód") + "</div>",
-      '  <div class="toolbar-summary"><strong>' + visibleInvoices.length + " / " + totalBase + '</strong><span>' + helper + '</span></div>',
-      '  <div class="bulk-actions"><span>' + selectedCount + " kijelölve</span>" + '<button class="settle-button" type="button" id="invoiceBulkSettle" ' + (selectedCount ? "" : "disabled") + '>Kiegyenlítés</button></div>',
-      '<button class="secondary-button" type="button" id="invoiceSelectVisible" ' + (selectableCount ? "" : "disabled") + '>Láthatók kijelölése</button>',
-      '<button class="secondary-button" type="button" id="invoiceClearFilters">Szűrők törlése</button>',
-      hint,
-      "</section>"
-    ].join("");
+    return {
+      totalBase: totalBase,
+      selectedCount: selectedCount,
+      selectableCount: selectableCount,
+      helper: helper,
+      hint: hint
+    };
   }
 
   function renderInvoiceTable(invoices) {
@@ -516,20 +528,9 @@
     var localSearchInput = root.querySelector("#invoiceLocalSearch");
     if (localSearchInput) {
       localSearchInput.addEventListener("input", function () {
-        var selectionStart = localSearchInput.selectionStart;
-        var scrollX = window.scrollX;
-        var scrollY = window.scrollY;
         uiState.localSearch = localSearchInput.value;
         uiState.selectedIds = {};
-        window.HRPlatform.notify();
-        setTimeout(function () {
-          var refreshedInput = document.getElementById("invoiceLocalSearch");
-          if (refreshedInput) {
-            window.scrollTo(scrollX, scrollY);
-            refreshedInput.focus();
-            refreshedInput.setSelectionRange(selectionStart, selectionStart);
-          }
-        }, 0);
+        refreshInvoiceResults(root, context || {});
       });
     }
 
@@ -721,6 +722,161 @@
       }
       updateInvoiceStatuses(ids, "Utalva");
     });
+
+    root.querySelectorAll("[data-settle-invoice]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        updateInvoiceStatuses([button.getAttribute("data-settle-invoice")], "Utalva");
+      });
+    });
+
+    root.querySelectorAll("[data-reopen-invoice]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        updateInvoiceStatuses([button.getAttribute("data-reopen-invoice")], "Fizetésre vár");
+      });
+    });
+
+    root.querySelectorAll("[data-edit-invoice]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        uiState.editingId = button.getAttribute("data-edit-invoice");
+        window.HRPlatform.notify();
+      });
+    });
+
+    root.querySelectorAll("[data-delete-invoice]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        var id = button.getAttribute("data-delete-invoice");
+        if (!confirm("Biztosan törlöd ezt a számlát?")) {
+          return;
+        }
+        saveInvoices(getInvoices().filter(function (invoice) {
+          return invoice.id !== id;
+        }));
+        delete uiState.selectedIds[id];
+        window.HRPlatform.notify();
+      });
+    });
+
+    root.querySelectorAll("[data-partner-filter]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        uiState.filters.partnerName = button.getAttribute("data-partner-filter");
+        uiState.editingId = "";
+        uiState.selectedIds = {};
+        if (window.HRPlatform && window.HRPlatform.state) {
+          window.HRPlatform.state.searchTerm = "";
+          var searchInput = document.getElementById("globalSearch");
+          if (searchInput) {
+            searchInput.value = "";
+          }
+        }
+        window.HRPlatform.notify();
+      });
+    });
+
+    root.querySelectorAll("[data-project-filter]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        uiState.filters.projectName = button.getAttribute("data-project-filter");
+        uiState.editingId = "";
+        uiState.selectedIds = {};
+        if (window.HRPlatform && window.HRPlatform.state) {
+          window.HRPlatform.state.searchTerm = "";
+          var searchInput = document.getElementById("globalSearch");
+          if (searchInput) {
+            searchInput.value = "";
+          }
+        }
+        window.HRPlatform.notify();
+      });
+    });
+  }
+
+  function refreshInvoiceResults(root, context) {
+    var invoices = getInvoices();
+    ensureSelectedMonth(invoices);
+    var monthInvoices = invoices.filter(function (invoice) {
+      return getInvoiceMonth(invoice) === uiState.month;
+    });
+    var visibleInvoices = getVisibleInvoices(context || {}, invoices);
+    var toolState = getInvoiceToolState(visibleInvoices, monthInvoices, invoices, context || {});
+    var tableWrap = root.querySelector(".invoice-table-wrap");
+    var toolbarSummary = root.querySelector("[data-invoice-toolbar-summary]");
+    var bulkActions = root.querySelector("[data-invoice-bulk-actions]");
+    var selectVisible = root.querySelector("#invoiceSelectVisible");
+    var bulkSettle = root.querySelector("#invoiceBulkSettle");
+    var hint = root.querySelector("[data-invoice-filter-hint]");
+
+    if (toolbarSummary) {
+      toolbarSummary.innerHTML = "<strong>" + visibleInvoices.length + " / " + toolState.totalBase + "</strong><span>" + toolState.helper + "</span>";
+    }
+    if (bulkActions) {
+      bulkActions.querySelector("span").textContent = toolState.selectedCount + " kijelölve";
+    }
+    if (bulkSettle) {
+      bulkSettle.disabled = !toolState.selectedCount;
+    }
+    if (selectVisible) {
+      selectVisible.disabled = !toolState.selectableCount;
+    }
+    if (hint) {
+      hint.innerHTML = toolState.hint;
+    }
+    if (tableWrap) {
+      tableWrap.outerHTML = renderInvoiceTable(visibleInvoices);
+      bindInvoiceTableActions(root, context || {});
+    }
+  }
+
+  function bindInvoiceTableActions(root, context) {
+    root.querySelectorAll("[data-column-filter]").forEach(function (input) {
+      input.addEventListener("input", function () {
+        uiState.filters[input.getAttribute("data-column-filter")] = input.value;
+      });
+      input.addEventListener("change", function () {
+        uiState.filters[input.getAttribute("data-column-filter")] = input.value;
+        uiState.selectedIds = {};
+        window.HRPlatform.notify();
+      });
+      input.addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          uiState.filters[input.getAttribute("data-column-filter")] = input.value;
+          uiState.selectedIds = {};
+          window.HRPlatform.notify();
+        }
+      });
+    });
+
+    root.querySelectorAll("[data-sort-key]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        var key = button.getAttribute("data-sort-key");
+        if (uiState.sortKey === key) {
+          uiState.sortDirection = uiState.sortDirection === "asc" ? "desc" : "asc";
+        } else {
+          uiState.sortKey = key;
+          uiState.sortDirection = key === "partnerName" || key === "invoiceNumber" ? "asc" : "desc";
+        }
+        window.HRPlatform.notify();
+      });
+    });
+
+    root.querySelectorAll("[data-select-invoice]").forEach(function (input) {
+      input.addEventListener("change", function () {
+        var id = input.getAttribute("data-select-invoice");
+        if (input.checked) {
+          uiState.selectedIds[id] = true;
+        } else {
+          delete uiState.selectedIds[id];
+        }
+        refreshInvoiceResults(root, context || {});
+      });
+    });
+
+    var selectAll = root.querySelector("#invoiceSelectAll");
+    if (selectAll) {
+      selectAll.addEventListener("change", function () {
+        setVisibleOpenInvoicesSelected(getVisibleInvoices(context || {}, getInvoices()), selectAll.checked);
+        refreshInvoiceResults(root, context || {});
+      });
+    }
 
     root.querySelectorAll("[data-settle-invoice]").forEach(function (button) {
       button.addEventListener("click", function () {
