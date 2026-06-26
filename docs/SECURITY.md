@@ -41,11 +41,21 @@ Only fictional demo/sample data should be committed.
 - The shared data file mode uses a short write lock, but it is not a full transactional multi-user database.
 - Demo data must remain fictional.
 
+## Encryption Research
+
+Optional Windows local data encryption has been researched in
+[ENCRYPTION_RESEARCH.md](ENCRYPTION_RESEARCH.md).
+
+The recommended direction is to use Electron `safeStorage` / Windows DPAPI for
+optional single-user local data encryption only. This is not recommended as the
+first solution for the shared NAS data file mode, because user-scoped DPAPI can
+prevent another authorized Windows user from decrypting the same shared file.
+
 ## Hardening Roadmap
 
 Recommended future issues:
 
-- Research local data encryption with Windows DPAPI.
+- Add optional local data encryption with Electron `safeStorage`.
 - Add optional app-level PIN or Windows-integrated authentication.
 - Define role-based permissions for admin vs read-only users.
 - Add signed installer support.
@@ -53,4 +63,4 @@ Recommended future issues:
 
 ## Magyar összefoglaló
 
-Az app JSON adatfájlba ment, amely lehet helyi Windows profilban vagy opcionálisan NAS/hálózati megosztáson. Nincs beépített bejelentkezés, RBAC vagy app-szintű titkosítás. Publikus repóba nem kerülhet valós számla, munkatársadat, backup vagy éles export. Éles környezetben a Windows/NAS jogosultságok, BitLocker vagy NAS védelem és mentési szabályok adják a fő védelmi réteget.
+Az app JSON adatfájlba ment, amely lehet helyi Windows profilban vagy opcionálisan NAS/hálózati megosztáson. Nincs beépített bejelentkezés vagy RBAC. A helyi adattitkosítás kutatása elkészült: DPAPI/Electron safeStorage jó lehet egyfelhasználós helyi adatfájlhoz, de nem első megoldás a közös NAS fájlhoz. Publikus repóba nem kerülhet valós számla, munkatársadat, backup vagy éles export. Éles környezetben a Windows/NAS jogosultságok, BitLocker vagy NAS védelem és mentési szabályok adják a fő védelmi réteget.
