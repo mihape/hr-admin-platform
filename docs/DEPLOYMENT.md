@@ -95,7 +95,7 @@ For a small environment:
 4. Verify that the existing local data file remains available.
 5. Export a fresh backup after verification.
 
-For managed environments, the installer can be distributed through Intune, SCCM, GPO startup scripts, or other endpoint management tooling.
+For managed environments, the installer can be distributed through Intune, SCCM, GPO user logon scripts, or other endpoint management tooling that can run in the logged-on user's context.
 
 ## Silent Deployment
 
@@ -160,6 +160,15 @@ Recommended package source:
 - `HR.Admin.Platform.Setup.0.3.5.exe`
 - optional `CHECKSUMS.txt` kept with the release evidence
 
+Required Intune assignment setting:
+
+- **Install behavior**: `User`
+
+Do not deploy this package with Intune's `System` install behavior. The current
+installer is a per-user NSIS installer. In system context, `%LOCALAPPDATA%`
+resolves to the management/System profile, so the app can be installed and
+detected outside the intended employee profile.
+
 Example install command:
 
 ```text
@@ -197,6 +206,10 @@ in Settings, and can read/write its local or shared data file.
 
 ### SCCM / Configuration Manager Notes
 
+Deploy this installer in the logged-on user context unless the package is later
+changed to a per-machine installer. System-context deployment can install the app
+under the service account profile instead of the employee profile.
+
 Example install command:
 
 ```text
@@ -218,10 +231,15 @@ Because this is a current-user style Electron install, deploy in user context
 unless the installer configuration is changed to a per-machine model in a future
 release.
 
-### GPO Startup / Logon Script Notes
+### GPO Logon Script Notes
 
 For small environments without Intune or SCCM, a logon script can install the
 app if the executable is missing.
+
+Use a **user logon script**, not a computer startup script. Computer startup
+scripts run before user logon and normally execute as LocalSystem. With this
+per-user installer, that would resolve `%LOCALAPPDATA%` to the system profile
+instead of each employee's profile.
 
 Example PowerShell sketch:
 
