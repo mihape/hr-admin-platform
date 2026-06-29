@@ -20,4 +20,4 @@ Document whether future versions need admin/read-only roles, Windows identity in
 
 ## [Feature] Add silent installer deployment mode
 
-Research and document command-line flags for unattended deployment through Intune, SCCM, or GPO startup scripts.
+Research and document command-line flags for unattended deployment through Intune, SCCM, or GPO user logon scripts.
