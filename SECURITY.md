@@ -15,3 +15,5 @@ For portfolio use, create a private note or contact the repository owner directl
 See [docs/SECURITY.md](docs/SECURITY.md) for the current local-only security model, limitations, and hardening roadmap.
 
 See [docs/ENCRYPTION_RESEARCH.md](docs/ENCRYPTION_RESEARCH.md) for the Windows DPAPI / Electron safeStorage encryption research.
+
+See [docs/AUTH_RBAC_ROADMAP.md](docs/AUTH_RBAC_ROADMAP.md) for the authentication and role-based access control roadmap.

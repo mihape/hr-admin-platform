@@ -51,16 +51,27 @@ optional single-user local data encryption only. This is not recommended as the
 first solution for the shared NAS data file mode, because user-scoped DPAPI can
 prevent another authorized Windows user from decrypting the same shared file.
 
+## Authentication and RBAC Roadmap
+
+Authentication and role-based access control options have been documented in
+[AUTH_RBAC_ROADMAP.md](AUTH_RBAC_ROADMAP.md).
+
+The recommended direction is to keep the current OS/share-permission model as
+the documented baseline, then add a minimum viable local RBAC model before
+considering Active Directory or Entra ID integration.
+
 ## Hardening Roadmap
 
 Recommended future issues:
 
 - Add optional local data encryption with Electron `safeStorage`.
-- Add optional app-level PIN or Windows-integrated authentication.
-- Define role-based permissions for admin vs read-only users.
+- Add UI-level read-only mode.
+- Add storage/API-level write authorization in the Electron main/preload layer.
+- Add Windows user-to-role mapping.
+- Evaluate Entra ID or Active Directory integration after local RBAC is stable.
 - Add signed installer support.
 - Add an internal data retention and backup policy.
 
 ## Magyar összefoglaló
 
-Az app JSON adatfájlba ment, amely lehet helyi Windows profilban vagy opcionálisan NAS/hálózati megosztáson. Nincs beépített bejelentkezés vagy RBAC. A helyi adattitkosítás kutatása elkészült: DPAPI/Electron safeStorage jó lehet egyfelhasználós helyi adatfájlhoz, de nem első megoldás a közös NAS fájlhoz. Publikus repóba nem kerülhet valós számla, munkatársadat, backup vagy éles export. Éles környezetben a Windows/NAS jogosultságok, BitLocker vagy NAS védelem és mentési szabályok adják a fő védelmi réteget.
+Az app JSON adatfájlba ment, amely lehet helyi Windows profilban vagy opcionálisan NAS/hálózati megosztáson. Nincs beépített bejelentkezés vagy RBAC. A helyi adattitkosítás kutatása elkészült: DPAPI/Electron safeStorage jó lehet egyfelhasználós helyi adatfájlhoz, de nem első megoldás a közös NAS fájlhoz. Az auth/RBAC roadmap szerint először egyszerű admin/operator/read-only modell, majd storage szintű írásvédelem, később Windows user mapping és csak utána Entra ID / Active Directory integráció javasolt. Publikus repóba nem kerülhet valós számla, munkatársadat, backup vagy éles export. Éles környezetben a Windows/NAS jogosultságok, BitLocker vagy NAS védelem és mentési szabályok adják a fő védelmi réteget.

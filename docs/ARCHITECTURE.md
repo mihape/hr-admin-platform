@@ -84,6 +84,17 @@ There is no client-server architecture in this release.
 - No router/firewall dependency.
 - Optional SMB/NAS file share path for shared data file mode.
 
+## Access Control Boundary
+
+The current release has module permission labels in the renderer module
+metadata, but it does not have enforced authentication or RBAC. These labels are
+useful preparation for future role-aware UI and storage checks, but they are not
+a security boundary yet.
+
+See [AUTH_RBAC_ROADMAP.md](AUTH_RBAC_ROADMAP.md) for the proposed admin,
+operator, read-only, Windows user mapping, and future Entra ID / Active
+Directory integration roadmap.
+
 ## Magyar összefoglaló
 
-Az app Electron alapú, statikus frontenddel és preloadon keresztüli JSON adatmentéssel. Az adatfájl alapból helyi, de Beállításokból közös NAS/hálózati fájlra is átváltható. Release módban üresen indul, demo módban fiktív mintaadatokat tölt. Jelenleg nincs szerveres komponens vagy adatbázis-szolgáltatás.
+Az app Electron alapú, statikus frontenddel és preloadon keresztüli JSON adatmentéssel. Az adatfájl alapból helyi, de Beállításokból közös NAS/hálózati fájlra is átváltható. Release módban üresen indul, demo módban fiktív mintaadatokat tölt. Jelenleg nincs szerveres komponens, adatbázis-szolgáltatás vagy valódi RBAC security boundary.
