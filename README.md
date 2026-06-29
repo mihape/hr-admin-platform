@@ -119,14 +119,3 @@ Portfolio szempontból azt mutatja meg, hogy nemcsak egy üzleti folyamatot lehe
 
 Részletes magyar használati útmutató: [HASZNALATI_UTMUTATO.md](HASZNALATI_UTMUTATO.md)
 
-## LinkedIn Project Description
-
-Copy-ready LinkedIn text is available in [docs/LINKEDIN_PROJECT.md](docs/LINKEDIN_PROJECT.md).
-
-```text
-HR Admin Platform - Local-first Windows desktop app for internal business administration.
-
-Built and packaged an Electron-based Windows application covering invoice tracking, fleet records, attendance sheets, and utilities/rent settlements. The project focuses on IT operations readiness: assisted NSIS installer, release/demo build modes, local or NAS-hosted JSON data storage, backup/restore flow, deployment documentation, security notes, and GitHub Actions release automation.
-
-Portfolio relevance: demonstrates business alignment, Windows desktop deployment, local data handling, release management, and documentation practices for Junior System Administrator / IT Support Engineer roles.
-```
