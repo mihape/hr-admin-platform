@@ -22,6 +22,15 @@ HR.Admin.Platform.Setup.0.3.5.exe
 
 The installer is an NSIS assisted installer. It is not a one-click silent installer by default. The user can select the installation directory and launch the app after setup.
 
+The installer is built with electron-builder's NSIS target. NSIS supports silent
+execution with `/S`, and a custom installation directory can be passed with
+`/D=...` as the final command-line argument.
+
+References:
+
+- NSIS common command-line options: <https://nsis.sourceforge.io/Docs/Chapter3.html>
+- electron-builder NSIS target: <https://www.electron.build/nsis.html>
+
 ## Release vs Demo Build
 
 - **Release build**: starts with an empty local database on a fresh machine.
@@ -86,7 +95,198 @@ For a small environment:
 4. Verify that the existing local data file remains available.
 5. Export a fresh backup after verification.
 
-For managed environments, the installer can be distributed through Intune, SCCM, GPO startup scripts, or other endpoint management tooling. Silent deployment has not been finalized in this release and should be tested before production rollout.
+For managed environments, the installer can be distributed through Intune, SCCM, GPO startup scripts, or other endpoint management tooling.
+
+## Silent Deployment
+
+Silent deployment is suitable for managed Windows endpoints after it has been
+smoke-tested on a disposable workstation or VM.
+
+### Silent Install
+
+Default current-user install:
+
+```powershell
+.\HR.Admin.Platform.Setup.0.3.5.exe /S
+```
+
+Custom install directory:
+
+```powershell
+.\HR.Admin.Platform.Setup.0.3.5.exe /S /D=C:\Apps\HR Admin Platform
+```
+
+Important notes:
+
+- `/S` is case-sensitive in NSIS.
+- `/D=...` must be the final argument.
+- Do not quote the `/D=...` value even when the path contains spaces.
+- The current build is configured as a standard user install by default, not a
+  per-machine deployment.
+- Silent install does not configure the shared NAS data file automatically.
+  Users still need to choose the shared data file in Settings, unless a future
+  managed configuration feature is added.
+
+### Silent Uninstall
+
+After installation, the NSIS uninstaller is normally located in the installation
+directory as `Uninstall HR Admin Platform.exe`.
+
+Example:
+
+```powershell
+& "$env:LOCALAPPDATA\Programs\HR Admin Platform\Uninstall HR Admin Platform.exe" /S
+```
+
+If a custom install directory was used:
+
+```powershell
+& "C:\Apps\HR Admin Platform\Uninstall HR Admin Platform.exe" /S _?=C:\Apps\HR Admin Platform
+```
+
+Important notes:
+
+- `/S` runs the uninstaller silently.
+- `_?=...` can be used with NSIS uninstallers to specify the installed
+  directory. Use it only when the deployment tool needs to target a known custom
+  installation path.
+- Silent uninstall removes application files, not necessarily user data in the
+  Windows profile.
+
+### Intune Win32 App Notes
+
+Recommended package source:
+
+- `HR.Admin.Platform.Setup.0.3.5.exe`
+- optional `CHECKSUMS.txt` kept with the release evidence
+
+Example install command:
+
+```text
+HR.Admin.Platform.Setup.0.3.5.exe /S
+```
+
+Example uninstall command:
+
+```text
+"%LOCALAPPDATA%\Programs\HR Admin Platform\Uninstall HR Admin Platform.exe" /S
+```
+
+Recommended detection script:
+
+```powershell
+$appPath = Join-Path $env:LOCALAPPDATA "Programs\HR Admin Platform\HR Admin Platform.exe"
+if (Test-Path $appPath) {
+  exit 0
+}
+exit 1
+```
+
+Alternative file detection rule:
+
+- File exists:
+  `%LOCALAPPDATA%\Programs\HR Admin Platform\HR Admin Platform.exe`
+
+Alternative file detection:
+
+- File exists:
+  `%LOCALAPPDATA%\Programs\HR Admin Platform\Uninstall HR Admin Platform.exe`
+
+Use a pilot group first. Confirm that the app starts, shows the expected version
+in Settings, and can read/write its local or shared data file.
+
+### SCCM / Configuration Manager Notes
+
+Example install command:
+
+```text
+HR.Admin.Platform.Setup.0.3.5.exe /S
+```
+
+Example uninstall command:
+
+```text
+"%LOCALAPPDATA%\Programs\HR Admin Platform\Uninstall HR Admin Platform.exe" /S
+```
+
+Suggested detection method:
+
+- Check for `HR Admin Platform.exe` under the expected install directory.
+- For custom paths, align the detection rule with the `/D=...` install path.
+
+Because this is a current-user style Electron install, deploy in user context
+unless the installer configuration is changed to a per-machine model in a future
+release.
+
+### GPO Startup / Logon Script Notes
+
+For small environments without Intune or SCCM, a logon script can install the
+app if the executable is missing.
+
+Example PowerShell sketch:
+
+```powershell
+$installPath = Join-Path $env:LOCALAPPDATA "Programs\HR Admin Platform\HR Admin Platform.exe"
+$installer = "\\server\software\HR.Admin.Platform.Setup.0.3.5.exe"
+
+if (-not (Test-Path $installPath)) {
+  Start-Process -FilePath $installer -ArgumentList "/S" -Wait
+}
+```
+
+Use share permissions so standard users can read the installer but cannot
+modify release files.
+
+## Managed Update Backup Requirements
+
+Before broad silent deployment or upgrade:
+
+1. Confirm where each workstation stores data:
+   - local user data file
+   - shared NAS JSON file
+2. Export a backup from the app for any workstation with local-only business
+   data.
+3. Back up the shared NAS JSON file if shared mode is active.
+4. Confirm no user is actively editing data during the upgrade window.
+5. Keep the previous installer available for rollback testing.
+
+Silent install updates application files. It should not be treated as a backup,
+migration, or data cleanup mechanism.
+
+## Silent Deployment Test Plan
+
+Run this on a disposable Windows test user/profile before production rollout:
+
+1. Download `HR.Admin.Platform.Setup.0.3.5.exe` and `CHECKSUMS.txt`.
+2. Verify the installer hash against `CHECKSUMS.txt`.
+3. Run:
+
+   ```powershell
+   .\HR.Admin.Platform.Setup.0.3.5.exe /S
+   ```
+
+4. Confirm this file exists:
+
+   ```text
+   %LOCALAPPDATA%\Programs\HR Admin Platform\HR Admin Platform.exe
+   ```
+
+5. Launch the app and confirm Settings shows version `0.3.5`.
+6. Create or restore a non-production test backup.
+7. Confirm data persists after closing and reopening the app.
+8. Run silent uninstall:
+
+   ```powershell
+   & "$env:LOCALAPPDATA\Programs\HR Admin Platform\Uninstall HR Admin Platform.exe" /S
+   ```
+
+9. Confirm program files are removed.
+10. Confirm whether user data remains in the app data directory, and document
+    the chosen cleanup policy.
+
+This repository has validated the documented flags against NSIS/electron-builder
+behavior and CI-built installers. A live endpoint install/uninstall smoke test
+should be recorded before using silent deployment in production.
 
 ## Uninstall Notes
 
@@ -115,6 +315,8 @@ The app is local-first.
 - Confirm the installer source and checksum.
 - Install using the release build for real users.
 - Use the demo build only for testing or presentations.
+- For managed deployment, pilot `/S` install and uninstall on a disposable
+  Windows profile before broad rollout.
 - Verify the local data path.
 - For shared mode, verify the NAS path and write permission from every workstation.
 - Export a backup before imports and before upgrades.
@@ -122,4 +324,4 @@ The app is local-first.
 
 ## Magyar összefoglaló
 
-Az alkalmazás helyi Windows desktop appként települ, nem igényel szervert vagy tűzfalszabályt. A Beállításokban választható közös NAS/hálózati JSON adatfájl is. Ez nem teljes többfelhasználós adatbázis, ezért egyszerre több aktív szerkesztőnél továbbra is óvatosság és rendszeres mentés szükséges.
+Az alkalmazás helyi Windows desktop appként települ, nem igényel szervert vagy tűzfalszabályt. A telepítő NSIS alapú, ezért támogatja a `/S` csendes telepítést, és a dokumentáció tartalmaz Intune/SCCM/GPO jellegű mintaparancsokat is. A Beállításokban választható közös NAS/hálózati JSON adatfájl. Ez nem teljes többfelhasználós adatbázis, ezért egyszerre több aktív szerkesztőnél továbbra is óvatosság és rendszeres mentés szükséges. Éles csendes telepítés előtt külön tesztgépen kell ellenőrizni az install, uninstall, verziókijelzés és adatmegmaradás folyamatát.
