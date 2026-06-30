@@ -99,7 +99,7 @@
     }
   };
 
-  var selectedMonth = window.localStorage.getItem("hr.utilities.selectedMonth") || new Date().toISOString().slice(0, 7);
+  var selectedMonth = window.localStorage.getItem("hr.utilities.selectedMonth") || currentMonthValue();
   var selectedUnitId = window.localStorage.getItem("hr.utilities.selectedUnitId") || "unit-a3";
   var activeUtilitiesSection = window.localStorage.getItem("hr.utilities.activeSection") || "settlement";
   var editingUnitId = "";
@@ -136,7 +136,7 @@
     }
 
     if (!selectedMonth) {
-      selectedMonth = new Date().toISOString().slice(0, 7);
+      selectedMonth = currentMonthValue();
     }
   }
 
@@ -164,7 +164,7 @@
   function dueDateForMonth(month) {
     var parts = month.split("-");
     var date = new Date(Number(parts[0]), Number(parts[1]), 10);
-    return date.toISOString().slice(0, 10);
+    return formatDateInputValue(date);
   }
 
   function calculateSettlement(state, unit, settlement) {
@@ -676,6 +676,11 @@
     return new Date(today.getFullYear(), today.getMonth(), today.getDate());
   }
 
+  function currentMonthValue() {
+    var today = new Date();
+    return today.getFullYear() + "-" + pad2(today.getMonth() + 1);
+  }
+
   function dueText(dateValue) {
     var days = daysUntilDueDate(dateValue);
     if (Number.isNaN(days)) {
@@ -708,6 +713,17 @@
       return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
     }
     return new Date(value);
+  }
+
+  function formatDateInputValue(date) {
+    if (Number.isNaN(date.getTime())) {
+      return "";
+    }
+    return date.getFullYear() + "-" + pad2(date.getMonth() + 1) + "-" + pad2(date.getDate());
+  }
+
+  function pad2(value) {
+    return String(value).padStart(2, "0");
   }
 
   function dateOnlySerial(date) {
