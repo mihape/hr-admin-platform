@@ -73,7 +73,8 @@
   function renderDataPanel(storageInfo) {
     return [
       '<section class="settings-panel">',
-      "  <h4>Adatok</h4>",
+      "  <h4>Adatok és átadás</h4>",
+      "  <p>Adatfájl, biztonsági mentés, visszatöltés és átadási export kezelése.</p>",
       '  <div class="settings-info-row"><span>Mentés módja</span><strong>' + h(storageLabel(storageInfo)) + "</strong></div>",
       '  <div class="settings-info-row"><span>Közös adatfájl</span><strong>' + (storageInfo.isShared ? "Bekapcsolva" : "Nincs bekapcsolva") + "</strong></div>",
       storageInfo.dataPath ? '<div class="settings-info-row"><span>Adatfájl</span><strong>' + h(storageInfo.dataPath) + "</strong></div>" : "",
