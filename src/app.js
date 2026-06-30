@@ -1,4 +1,5 @@
 (function () {
+  var INVOICE_DUE_SOON_DAYS = 7;
   var platform = window.HRPlatform;
   var nav = document.getElementById("moduleNav");
   var content = document.getElementById("moduleContent");
@@ -194,16 +195,6 @@
       '      <h4>Mai fókusz</h4>',
       renderDashboardTasks(),
       '    </article>',
-      '    <article class="module-card system-card">',
-      '      <h4>Adatok és átadás</h4>',
-      '      <p>A napi munkához a modulok saját exportjai használhatók. A helyi Windows app külön adatfájlba ment, amit innen lehet biztonsági menteni.</p>',
-      '      <div class="system-actions">',
-      '        <button class="secondary-button" type="button" data-backup-data>Biztonsági mentés</button>',
-      '        <button class="secondary-button" type="button" data-restore-data>Mentés visszatöltése</button>',
-      '        <button class="secondary-button" type="button" data-export-manifest>Átadási fájl export</button>',
-      '      </div>',
-      '      <small>' + h(getStorageModeLabel()) + '</small>',
-      '    </article>',
       '  </section>',
       '</div>'
     ].join("");
@@ -265,21 +256,37 @@
   function getInvoiceTasks() {
     var invoices = readTenantCollection("invoices.records", []);
     var openOverdue = invoices.filter(function (invoice) {
-      return normalizeInvoiceStatus(invoice.status) !== "utalva" && isPastDate(invoice.dueDate);
+      return !isInvoicePaid(invoice) && isPastDate(invoice.dueDate);
     });
-    if (!openOverdue.length) {
-      return [];
+    var dueSoon = invoices.filter(function (invoice) {
+      var days = daysUntil(invoice.dueDate);
+      return !isInvoicePaid(invoice) && days >= 0 && days <= INVOICE_DUE_SOON_DAYS;
+    });
+    var tasks = [];
+    if (openOverdue.length) {
+      var overdueTotal = openOverdue.reduce(sumInvoiceGross, 0);
+      tasks.push({
+        moduleId: "invoices",
+        level: "danger",
+        label: "Lejárt számla",
+        title: openOverdue.length + " fizetésre váró számla",
+        detail: platform.utils.formatCurrency(overdueTotal) + " lejárt határidővel"
+      });
     }
-    var total = openOverdue.reduce(function (sum, invoice) {
-      return sum + Number(invoice.grossAmount || 0);
-    }, 0);
-    return [{
-      moduleId: "invoices",
-      level: "danger",
-      label: "Lejárt számla",
-      title: openOverdue.length + " fizetésre váró számla",
-      detail: platform.utils.formatCurrency(total) + " lejárt határidővel"
-    }];
+    if (dueSoon.length) {
+      var soonTotal = dueSoon.reduce(sumInvoiceGross, 0);
+      var nearestDays = dueSoon.reduce(function (nearest, invoice) {
+        return Math.min(nearest, daysUntil(invoice.dueDate));
+      }, INVOICE_DUE_SOON_DAYS);
+      tasks.push({
+        moduleId: "invoices",
+        level: "warning",
+        label: "Közeli számlalejárat",
+        title: dueSoon.length + " számla " + INVOICE_DUE_SOON_DAYS + " napon belül",
+        detail: platform.utils.formatCurrency(soonTotal) + " / legközelebb: " + deadlineText(nearestDays).toLocaleLowerCase("hu-HU")
+      });
+    }
+    return tasks;
   }
 
   function getFleetTasks() {
@@ -351,13 +358,16 @@
   }
 
   function readTenantCollection(collectionName, fallback) {
-    var tenant = platform.authTenantAdapter.getCurrentTenant();
-    var key = "hr-admin-platform:" + tenant.id + ":" + collectionName;
-    var raw = window.localStorage.getItem(key);
-    if (!raw) {
-      return fallback;
+    if (platform.storage && typeof platform.storage.readCollection === "function") {
+      return platform.storage.readCollection(collectionName, fallback);
     }
     try {
+      var tenant = platform.authTenantAdapter.getCurrentTenant();
+      var key = "hr-admin-platform:" + tenant.id + ":" + collectionName;
+      var raw = window.localStorage.getItem(key);
+      if (!raw) {
+        return fallback;
+      }
       return JSON.parse(raw);
     } catch (error) {
       return fallback;
@@ -388,6 +398,15 @@
 
   function normalizeInvoiceStatus(value) {
     return String(value || "").toLocaleLowerCase("hu-HU").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  }
+
+  function isInvoicePaid(invoice) {
+    var status = normalizeInvoiceStatus(invoice && invoice.status);
+    return status === "utalva" || status === "kiegyenlitve" || status === "fizetve" || status === "paid";
+  }
+
+  function sumInvoiceGross(sum, invoice) {
+    return sum + Number(invoice.grossAmount || 0);
   }
 
   function isPastDate(value) {
