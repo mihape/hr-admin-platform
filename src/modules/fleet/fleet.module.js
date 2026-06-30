@@ -233,7 +233,7 @@
     var monthlyFuel = sumByMonth(refuels, thisMonth);
     var monthlyService = sumByMonth(services, thisMonth);
     var recentRefuels = refuels.slice().sort(sortByDateDesc).slice(0, 5);
-    var alertRows = getAlerts();
+    var alertRows = buildDeadlineAlerts(vehicles);
 
     return [
       '<section class="fleet-dashboard">',
@@ -252,7 +252,7 @@
       '<article class="fleet-panel">',
       '<div class="fleet-panel-title"><h4>Határidők</h4><span>Műszaki és KGFB</span></div>',
       '<div class="fleet-alert-list">',
-      vehicles.map(renderDeadlineRow).join("") || '<p class="muted-line">Még nincs autó rögzítve.</p>',
+      alertRows.map(renderDeadlineAlertRow).join("") || '<p class="muted-line">Nincs lejárt vagy 30 napon belüli flotta határidő.</p>',
       '</div>',
       '</article>',
       '</section>'
@@ -671,15 +671,15 @@
     return "<tr><td><strong>" + escape(getVehicleName(refuel.vehicleId)) + "</strong></td><td>" + date(refuel.date) + "</td><td>" + Number(refuel.amount || 0).toLocaleString("hu-HU") + " l</td><td>" + money(refuel.cost) + "</td></tr>";
   }
 
-  function renderDeadlineRow(vehicle) {
+  function renderDeadlineAlertRow(alert) {
     var h = window.HRPlatform.utils.escapeHtml;
     var date = window.HRPlatform.utils.formatDate;
     return [
       '<div class="fleet-alert-row">',
-      '<strong>' + h(vehicle.plate) + '</strong>',
-      '<span>Műszaki: ' + date(vehicle.motDate) + '</span>',
-      '<span>KGFB: ' + date(vehicle.insDate) + '</span>',
-      renderVehicleStatus(vehicle),
+      '<strong>' + h(alert.vehicle.plate) + '</strong>',
+      '<span>' + h(alert.label) + ': ' + date(alert.date) + '</span>',
+      '<span>' + h(alert.detail) + '</span>',
+      '<span class="pill ' + alert.variant + '">' + h(alert.status) + '</span>',
       '</div>'
     ].join("");
   }
@@ -802,6 +802,34 @@
 
   function daysUntil(dateValue, today) {
     return (new Date(dateValue) - today) / 86400000;
+  }
+
+  function buildDeadlineAlerts(vehicles) {
+    var today = new Date();
+    return vehicles.reduce(function (rows, vehicle) {
+      addDeadlineAlert(rows, vehicle, "Műszaki", vehicle.motDate, today);
+      addDeadlineAlert(rows, vehicle, "KGFB", vehicle.insDate, today);
+      return rows;
+    }, []).sort(function (a, b) {
+      return a.days - b.days;
+    });
+  }
+
+  function addDeadlineAlert(rows, vehicle, label, dateValue, today) {
+    var days = Math.ceil(daysUntil(dateValue, today));
+    if (Number.isNaN(days) || days >= 30) {
+      return;
+    }
+
+    rows.push({
+      vehicle: vehicle,
+      label: label,
+      date: dateValue,
+      days: days,
+      detail: deadlineText(dateValue),
+      status: days < 0 ? "Lejárt" : "Figyelendő",
+      variant: days < 0 ? "danger" : "warning"
+    });
   }
 
   function deadlineText(dateValue) {
