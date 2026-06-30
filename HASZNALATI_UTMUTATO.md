@@ -1,8 +1,10 @@
 # HR Admin Platform - Használati útmutató
 
-## 1. Indítás
+## 1. Indítás és telepített használat
 
-A futtatható app a következő mappából indítható:
+Telepített verzióban az alkalmazás a Start menüből vagy az asztali parancsikonról indítható.
+
+Fejlesztői vagy kicsomagolt build esetén a futtatható app innen indítható:
 
 `dist/win-unpacked/HR Admin Platform.exe`
 
@@ -24,6 +26,14 @@ Itt add meg:
 
 Mentés után az oldalsáv, az áttekintő és a számlamodul is az új alapadatokat használja.
 
+A **Beállítások** oldalon látható még:
+
+- az app verziója
+- az aktív adatmentési mód
+- az aktuális adatfájl útvonala, ha elérhető
+- a mentett partnerlista
+- az adatkezelési műveletek: közös adatfájl, helyi adatfájl, biztonsági mentés, visszatöltés és átadási export
+
 ## 3. Áttekintés
 
 Az **Áttekintés** oldalon látszanak a fő modulok és a napi fókusz.
@@ -31,11 +41,14 @@ Az **Áttekintés** oldalon látszanak a fő modulok és a napi fókusz.
 A napi fókusz automatikusan jelzi például:
 
 - lejárt vagy fizetésre váró számlákat
+- 7 napon belül esedékes, nyitott számlákat
 - flotta határidőket
 - rezsi vagy albérlet nyitott egyenlegeket
 - jelenléti ív előkészítési teendőket
 
 A modul kártyákra kattintva az adott modul nyílik meg. A felső globális kereső a modulok között és az aktív modul tartalmában is segít keresni.
+
+Az adatkezelési műveletek nem az áttekintésen vannak, hanem a **Beállítások / Adatok és átadás** panelen.
 
 ## 4. Számlák
 
@@ -96,9 +109,21 @@ Itt lehet:
 A számla modulban használható:
 
 - Excel/CSV import
-- CSV export
+- látható lista CSV export
+- kimutatás a szűrt lista alapján
 
 Importnál támogatott mezők például: dátum, partner vagy kiállító, számlaszám, nettó, ÁFA, bruttó, fizetési mód, fizetési határidő, kiegyenlítés, projekt, megjegyzés.
+
+A **Kimutatás** panel a jelenleg látható vagy szűrt számlalistát összesíti:
+
+- bruttó összesen
+- fizetésre váró összeg
+- kiegyenlített összeg
+- ÁFA tartalom
+- lejárt számlák összege
+- kategória és fizetési mód szerinti bontás
+
+A **Látható CSV export** csak azt a listát exportálja, amit éppen a hónapválasztó, kereső, státusz, partner, projekt vagy oszlopszűrő után látsz. Az exportban szerepel a szűrési kör, a státuszcsoport, a lejárt jelzés és a határidőig hátralévő napok száma is.
 
 ## 5. Flotta
 
@@ -115,7 +140,9 @@ Az áttekintésben látszik:
 - havi szervizköltség
 - figyelendő határidők
 - legutóbbi tankolások
-- műszaki és KGFB lejáratok
+- lejárt vagy 30 napon belüli műszaki és KGFB lejáratok
+
+Ha nincs lejárt vagy közeli határidő, a határidő panel ezt külön jelzi. Így nem keverednek a rendben lévő autók a ténylegesen figyelendő feladatokkal.
 
 ### Autók kezelése
 
@@ -186,6 +213,16 @@ Az **Elszámolás** fülön rögzíthető:
 
 A modul kiszámolja a közműveket, a bérleti díjat, az ismétlődő tételeket, az egyszeri plusz tételeket, a fizetendő összeget és az egyenleget.
 
+Az **Áttekintés** fülön látszik:
+
+- aktív ingatlanok száma
+- kiválasztott ingatlan havi fizetendője
+- kiválasztott ingatlan aktuális egyenlege
+- gyors összesítő közmű, bérleti díj, plusz tételek és egyenleg bontással
+- nyitott egyenlegek ingatlanonként és hónaponként
+
+A nyitott egyenlegek panel a határidőt is jelzi, így gyorsan látszik, mi lejárt vagy mi esedékes hamarosan.
+
 ### Ingatlanok
 
 Az **Ingatlanok** fülön új ingatlan vagy albérlet vehető fel.
@@ -221,8 +258,10 @@ A nyomtatás A4-es lapra optimalizált. A hétválasztóval megadható, melyik h
 
 ## 8. Biztonsági mentés
 
-A **Beállítások** vagy az **Áttekintés / Adatok és átadás** részen elérhető:
+A **Beállítások / Adatok és átadás** részen elérhető:
 
+- közös adatfájl kiválasztása
+- helyi adatfájlra visszaváltás, ha éppen közös adatfájl aktív
 - Biztonsági mentés
 - Mentés visszatöltése
 - Átadási fájl export
@@ -231,7 +270,7 @@ A **Beállítások** vagy az **Áttekintés / Adatok és átadás** részen elé
 
 ### Közös NAS adatfájl
 
-A **Beállítások / Adatok** részen a **Közös adatfájl kiválasztása** gombbal megadható egy NAS vagy Windows hálózati megosztáson lévő JSON fájl.
+A **Beállítások / Adatok és átadás** részen a **Közös adatfájl kiválasztása** gombbal megadható egy NAS vagy Windows hálózati megosztáson lévő JSON fájl.
 
 Példa:
 
@@ -249,6 +288,7 @@ Javaslat:
 ## 9. Ismert korlátok
 
 - A közös NAS adatfájl nem teljes többfelhasználós szerveres rendszer, hanem közös JSON fájl rövid írási zárral.
+- Több gépes használatnál továbbra is fontos a Windows/NAS jogosultság és a rendszeres mentés.
 - Böngészőből tesztelve az adatmentés localStorage fallbacket használ.
 - A végleges installer buildhez natív Windows buildkörnyezet vagy megfelelő Wine környezet kell.
 
@@ -265,4 +305,5 @@ Javaslat:
 - rezsi/albérlet havi elszámolás számol
 - jelenléti ív nyomtatható
 - biztonsági mentés készül
-- az app a `dist/win-unpacked/HR Admin Platform.exe` fájlból indul
+- telepített verziónál az app a Start menüből vagy parancsikonról indul
+- fejlesztői/kicsomagolt buildnél az app a `dist/win-unpacked/HR Admin Platform.exe` fájlból indul

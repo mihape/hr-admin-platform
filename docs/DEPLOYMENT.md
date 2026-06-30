@@ -58,7 +58,8 @@ Recommended setup:
 
 1. Create a dedicated shared folder on the NAS.
 2. Give write access only to the Windows users who should edit HR Admin data.
-3. Open **Settings / Data** in the app.
+3. Open **Settings / Data and handoff** in the app. In the Hungarian UI this is
+   **Beállítások / Adatok és átadás**.
 4. Choose **Select shared data file** and point it to a path such as:
 
 ```text
