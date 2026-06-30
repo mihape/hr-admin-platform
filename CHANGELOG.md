@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+- Számla modul: új kimutatás panel a látható/szűrt lista bruttó, nyitott, fizetett, ÁFA, lejárt, kategória és fizetési mód bontásával.
+- Számla modul: a CSV export most a látható/szűrt listát exportálja, és tartalmazza a szűrési kört, státuszcsoportot, lejárt jelzést és határidőig hátralévő napokat.
+- Áttekintő: a napi fókusz a 7 napon belül esedékes, nyitott számlákat is jelzi.
+- Áttekintő: az adatkezelési műveletek kikerültek az áttekintésből, és a Beállítások / Adatok és átadás panelre kerültek.
+- Flotta modul: a határidő panel csak a lejárt vagy 30 napon belüli műszaki/KGFB tételeket listázza.
+- Rezsi/albérlet modul: az áttekintés új nyitott egyenleg panelt kapott ingatlanonként és hónaponként.
+- Rezsi/albérlet modul: a határidő szövegek, rendezés és lejárt jelzés helyi `YYYY-MM-DD` dátumkezelést használnak, így magyar időzónában nem csúsznak egy napot.
+- Rezsi/albérlet modul: az új havi elszámolások default határideje helyi dátumformázással készül, például `2026-05` hónaphoz `2026-06-10`.
+- Dokumentáció: a használati útmutató és deployment leírás frissült a kimutatás/export, flotta/rezsi áttekintő és Beállítások / Adatok és átadás működéssel.
+
 ## 0.3.5 - 2026-06-26
 
 - Runtime: az app verziója a build konfigurációból érkezik, amely a `package.json` verzióját használja.
