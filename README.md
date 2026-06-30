@@ -5,13 +5,13 @@
 ![Local first](https://img.shields.io/badge/storage-local--first-0F766E)
 ![Build](https://img.shields.io/badge/release-NSIS%20installer-2F855A)
 
-HR Admin Platform is a local-first Windows desktop application for small business administration workflows: invoices, fleet records, attendance sheets, utilities/rent settlements, and basic company settings.
+HR Admin Platform is a local-first Windows desktop application for small business administration workflows: invoices, fleet records, attendance sheets, utilities/rent settlements, and basic company settings. The public repository is maintained as a portfolio project focused on Windows deployment, release management, backup/restore planning, and practical IT support handoff.
 
 ## Portfolio Context
 
-This project is presented as a practical IT operations portfolio piece for remote Junior System Administrator / IT Support Engineer roles. It focuses on the full lifecycle around an internal business tool: packaging, Windows deployment, release assets, local data storage, backup/restore, security boundaries, and user-facing documentation.
+This project is presented as a practical IT operations portfolio piece for remote Junior System Administrator / IT Support Engineer roles. It shows how an internal business need can be translated into a supportable Windows desktop tool with installer packaging, release assets, checksum verification, local/NAS data storage, backup and restore notes, security boundary documentation, and user-facing instructions.
 
-It is not only a UI project. The repository demonstrates how an internal desktop app can be prepared for handoff: assisted installer builds, release/demo modes, checksum generation, deployment notes, security limitations, and GitHub Actions automation.
+It is not only a UI project. The repository demonstrates operational habits that matter in IT support: clear release/demo separation, documented installation and update flows, silent deployment research, local data protection trade-offs, issue-driven changes, pull requests, and GitHub Actions validation.
 
 ## What This Demonstrates
 
@@ -20,6 +20,7 @@ It is not only a UI project. The repository demonstrates how an internal desktop
 - Release/demo build separation and SHA256 checksums.
 - Backup, restore, deployment, security, and workflow documentation.
 - Portfolio-style GitHub process: issues, pull requests, milestones, and releases.
+- IT support thinking: user handoff, support notes, deployment caveats, and documented limitations.
 
 ## Features
 
@@ -115,7 +116,10 @@ The `release-assets` folder is included as a handoff convenience, but installer 
 
 Ez egy helyi Windows admin alkalmazás számlák, flotta, jelenléti ívek, rezsi/albérlet elszámolások és alap céges beállítások kezelésére.
 
-Portfolio szempontból azt mutatja meg, hogy nemcsak egy üzleti folyamatot lehet digitalizálni, hanem a teljes átadási/üzemeltetési környezetre is lehet figyelni: telepítő, verziókezelés, mentés, dokumentáció, biztonsági korlátok és release automatizáció.
+Portfolio szempontból azt mutatja meg, hogy nemcsak egy üzleti folyamatot lehet digitalizálni, hanem a teljes átadási/üzemeltetési környezetre is lehet figyelni: Windows telepítő, verziózott release, mentés/visszatöltés, NAS-os adatkezelés, dokumentáció, biztonsági korlátok, GitHub issue/PR workflow és release automatizáció.
 
 Részletes magyar használati útmutató: [HASZNALATI_UTMUTATO.md](HASZNALATI_UTMUTATO.md)
 
+## LinkedIn Project Description
+
+Copy-ready LinkedIn project text is available in [docs/LINKEDIN_PROJECT.md](docs/LINKEDIN_PROJECT.md).
