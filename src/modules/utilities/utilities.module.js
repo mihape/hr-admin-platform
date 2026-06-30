@@ -342,7 +342,7 @@
       });
       return rows;
     }, []).sort(function (a, b) {
-      return new Date(a.dueDate) - new Date(b.dueDate);
+      return parseLocalDate(a.dueDate) - parseLocalDate(b.dueDate);
     });
   }
 
@@ -355,7 +355,7 @@
       '<strong>' + h(rowData.unit.name) + '</strong>',
       '<span>' + h(rowData.settlement.month) + ' / ' + date(rowData.dueDate) + '</span>',
       '<span>' + h(rowData.dueText) + '</span>',
-      '<span class="pill ' + (new Date(rowData.dueDate) < startOfToday() ? "danger" : "warning") + '">' + money(rowData.balance) + '</span>',
+      '<span class="pill ' + (daysUntilDueDate(rowData.dueDate) < 0 ? "danger" : "warning") + '">' + money(rowData.balance) + '</span>',
       '</div>'
     ].join("");
   }
@@ -677,7 +677,7 @@
   }
 
   function dueText(dateValue) {
-    var days = Math.ceil((new Date(dateValue) - startOfToday()) / 86400000);
+    var days = daysUntilDueDate(dateValue);
     if (Number.isNaN(days)) {
       return "Nincs határidő";
     }
@@ -691,6 +691,27 @@
       return "Holnap esedékes";
     }
     return days + " nap múlva esedékes";
+  }
+
+  function daysUntilDueDate(dateValue) {
+    var dueDate = parseLocalDate(dateValue);
+    var today = startOfToday();
+    if (Number.isNaN(dueDate.getTime())) {
+      return NaN;
+    }
+    return dateOnlySerial(dueDate) - dateOnlySerial(today);
+  }
+
+  function parseLocalDate(value) {
+    var match = String(value || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (match) {
+      return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+    }
+    return new Date(value);
+  }
+
+  function dateOnlySerial(date) {
+    return Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86400000);
   }
 
   function row(label, value, variant) {
