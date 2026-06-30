@@ -305,6 +305,7 @@
 
   function renderUtilitiesOverview(state, unit, settlement, calc) {
     var money = window.HRPlatform.utils.formatCurrency;
+    var openRows = buildOpenSettlementRows(state).slice(0, 6);
     return [
       '<div class="module-grid">',
       statCard("Aktív ingatlan", getActiveUnits(state).length, "Főépület és albérletek"),
@@ -318,7 +319,44 @@
         row("Egyszeri plusz tételek", money(calc.extraTotal)) +
         row("Fizetendő összesen", money(calc.total), "strong") +
         row("Egyenleg", money(calc.balance), calc.balance > 0 ? "warning" : "strong") +
-        '</div></section>' : '<div class="empty-state">Nincs ingatlan adat.</div>'
+        '</div></section>' : '<div class="empty-state">Nincs ingatlan adat.</div>',
+      '<section class="module-card utility-settlement"><h4>Nyitott egyenlegek</h4><div class="fleet-alert-list">',
+      openRows.map(renderUtilityBalanceRow).join("") || '<p class="muted-line">Nincs nyitott albérleti vagy rezsi egyenleg.</p>',
+      '</div></section>'
+    ].join("");
+  }
+
+  function buildOpenSettlementRows(state) {
+    return Object.values(state.settlements).reduce(function (rows, settlement) {
+      var unit = getUnit(state, settlement.unitId);
+      var calc = unit ? calculateSettlement(state, unit, settlement) : null;
+      if (!calc || calc.balance <= 0) {
+        return rows;
+      }
+      rows.push({
+        unit: unit,
+        settlement: settlement,
+        balance: calc.balance,
+        dueDate: settlement.dueDate || dueDateForMonth(settlement.month),
+        dueText: dueText(settlement.dueDate || dueDateForMonth(settlement.month))
+      });
+      return rows;
+    }, []).sort(function (a, b) {
+      return new Date(a.dueDate) - new Date(b.dueDate);
+    });
+  }
+
+  function renderUtilityBalanceRow(rowData) {
+    var h = window.HRPlatform.utils.escapeHtml;
+    var money = window.HRPlatform.utils.formatCurrency;
+    var date = window.HRPlatform.utils.formatDate;
+    return [
+      '<div class="fleet-alert-row">',
+      '<strong>' + h(rowData.unit.name) + '</strong>',
+      '<span>' + h(rowData.settlement.month) + ' / ' + date(rowData.dueDate) + '</span>',
+      '<span>' + h(rowData.dueText) + '</span>',
+      '<span class="pill ' + (new Date(rowData.dueDate) < startOfToday() ? "danger" : "warning") + '">' + money(rowData.balance) + '</span>',
+      '</div>'
     ].join("");
   }
 
@@ -631,6 +669,28 @@
     if (element) {
       element.addEventListener(eventName, handler);
     }
+  }
+
+  function startOfToday() {
+    var today = new Date();
+    return new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  }
+
+  function dueText(dateValue) {
+    var days = Math.ceil((new Date(dateValue) - startOfToday()) / 86400000);
+    if (Number.isNaN(days)) {
+      return "Nincs határidő";
+    }
+    if (days < 0) {
+      return "Lejárt " + Math.abs(days) + " napja";
+    }
+    if (days === 0) {
+      return "Ma esedékes";
+    }
+    if (days === 1) {
+      return "Holnap esedékes";
+    }
+    return days + " nap múlva esedékes";
   }
 
   function row(label, value, variant) {
