@@ -219,7 +219,7 @@
       '    <div class="module-actions">',
       '      <button class="secondary-button" type="button" id="invoiceCompactToggle">' + (uiState.compactMode ? "Teljes nézet" : "Fókusz nézet") + "</button>",
       '      <button class="secondary-button" type="button" id="invoiceImportToggle">Excel import megnyitása</button>',
-      '      <button class="primary-button" type="button" data-export="invoices">CSV export</button>',
+      '      <button class="primary-button" type="button" data-export="invoices">Látható CSV export</button>',
       "    </div>",
       "  </div>",
       renderMonthTabs(invoices),
@@ -232,6 +232,7 @@
         "  </div>"
       ].join(""),
       renderInvoiceTools(visibleInvoices, monthInvoices, invoices, context),
+      renderInvoiceReport(visibleInvoices),
       uiState.compactMode ? "" : renderInvoiceForm(editingInvoice, projectNames, partnerNames),
       uiState.compactMode ? "" : renderImportPanel(),
       renderInvoiceTable(visibleInvoices),
@@ -273,6 +274,63 @@
       '<button class="secondary-button" type="button" id="invoiceClearFilters">Szűrők törlése</button>',
       '<div data-invoice-filter-hint>' + toolState.hint + '</div>',
       "</section>"
+    ].join("");
+  }
+
+  function renderInvoiceReport(invoices) {
+    var summary = getDetailedInvoiceSummary(invoices);
+    var h = window.HRPlatform.utils.escapeHtml;
+    var money = window.HRPlatform.utils.formatCurrency;
+
+    return [
+      '<section class="invoice-report" data-invoice-report aria-label="Számla kimutatás">',
+      '  <div class="invoice-report-head">',
+      "    <div>",
+      "      <h4>Kimutatás</h4>",
+      "      <p>Az aktuálisan látható számlalista gyors pénzügyi bontása.</p>",
+      "    </div>",
+      '    <span class="invoice-report-pill">' + h(invoices.length + " látható tétel") + "</span>",
+      "  </div>",
+      '  <div class="invoice-report-grid">',
+      '    <div class="invoice-report-metrics">',
+      renderReportMetric("Bruttó összesen", money(summary.grossTotal)),
+      renderReportMetric("Fizetésre vár", money(summary.openGross)),
+      renderReportMetric("Kiegyenlítve", money(summary.paidGross)),
+      renderReportMetric("ÁFA tartalom", money(summary.vatTotal)),
+      renderReportMetric("Lejárt", summary.overdueCount + " db / " + money(summary.overdueGross)),
+      "    </div>",
+      renderBreakdownList("Kategóriák", aggregateInvoiceBreakdown(invoices, "category")),
+      renderBreakdownList("Fizetési mód", aggregateInvoiceBreakdown(invoices, "paymentMethod")),
+      "  </div>",
+      "</section>"
+    ].join("");
+  }
+
+  function renderReportMetric(label, value) {
+    return [
+      '<div class="invoice-report-metric">',
+      "<span>" + hAttr(label) + "</span>",
+      "<strong>" + hAttr(value) + "</strong>",
+      "</div>"
+    ].join("");
+  }
+
+  function renderBreakdownList(title, rows) {
+    var h = window.HRPlatform.utils.escapeHtml;
+    var money = window.HRPlatform.utils.formatCurrency;
+    return [
+      '<div class="invoice-report-breakdown">',
+      "<h5>" + h(title) + "</h5>",
+      rows.length ? rows.slice(0, 5).map(function (row) {
+        return [
+          '<div class="invoice-report-row">',
+          "<span>" + h(row.label) + "</span>",
+          "<strong>" + money(row.grossTotal) + "</strong>",
+          "<small>" + row.count + " db</small>",
+          "</div>"
+        ].join("");
+      }).join("") : '<div class="invoice-report-empty">Nincs megjeleníthető adat.</div>',
+      "</div>"
     ].join("");
   }
 
@@ -799,6 +857,7 @@
     var toolState = getInvoiceToolState(visibleInvoices, monthInvoices, invoices, context || {});
     var tableWrap = root.querySelector(".invoice-table-wrap");
     var toolbarSummary = root.querySelector("[data-invoice-toolbar-summary]");
+    var report = root.querySelector("[data-invoice-report]");
     var bulkActions = root.querySelector("[data-invoice-bulk-actions]");
     var selectVisible = root.querySelector("#invoiceSelectVisible");
     var bulkSettle = root.querySelector("#invoiceBulkSettle");
@@ -818,6 +877,9 @@
     }
     if (hint) {
       hint.innerHTML = toolState.hint;
+    }
+    if (report) {
+      report.outerHTML = renderInvoiceReport(visibleInvoices);
     }
     if (tableWrap) {
       tableWrap.outerHTML = renderInvoiceTable(visibleInvoices);
@@ -1194,6 +1256,58 @@
         return sum + Number(invoice.grossAmount || 0);
       }, 0)
     };
+  }
+
+  function getDetailedInvoiceSummary(invoices) {
+    var open = invoices.filter(function (invoice) {
+      return !isPaidInvoice(invoice);
+    });
+    var paid = invoices.filter(isPaidInvoice);
+    var overdue = invoices.filter(isOverdue);
+
+    return {
+      count: invoices.length,
+      openCount: open.length,
+      paidCount: paid.length,
+      overdueCount: overdue.length,
+      netTotal: sumInvoiceField(invoices, "netAmount"),
+      vatTotal: sumInvoiceField(invoices, "vatAmount"),
+      grossTotal: sumInvoiceField(invoices, "grossAmount"),
+      openGross: sumInvoiceField(open, "grossAmount"),
+      paidGross: sumInvoiceField(paid, "grossAmount"),
+      overdueGross: sumInvoiceField(overdue, "grossAmount")
+    };
+  }
+
+  function sumInvoiceField(invoices, fieldName) {
+    return invoices.reduce(function (sum, invoice) {
+      return sum + Number(invoice[fieldName] || 0);
+    }, 0);
+  }
+
+  function aggregateInvoiceBreakdown(invoices, fieldName) {
+    var map = {};
+    invoices.forEach(function (invoice) {
+      var label = String(invoice[fieldName] || "Nincs megadva").trim() || "Nincs megadva";
+      if (!map[label]) {
+        map[label] = {
+          label: label,
+          count: 0,
+          grossTotal: 0
+        };
+      }
+      map[label].count += 1;
+      map[label].grossTotal += Number(invoice.grossAmount || 0);
+    });
+
+    return Object.keys(map).map(function (key) {
+      return map[key];
+    }).sort(function (a, b) {
+      if (b.grossTotal !== a.grossTotal) {
+        return b.grossTotal - a.grossTotal;
+      }
+      return normalizeText(a.label).localeCompare(normalizeText(b.label), "hu-HU");
+    });
   }
 
   function getAvailableMonths(invoices) {
@@ -1870,6 +1984,20 @@
     return dueDate < today;
   }
 
+  function daysUntilInvoiceDueDate(invoice) {
+    if (!invoice || !invoice.dueDate) {
+      return null;
+    }
+    var today = new Date();
+    today.setHours(0, 0, 0, 0);
+    var dueDate = new Date(invoice.dueDate + "T00:00:00");
+    if (Number.isNaN(dueDate.getTime())) {
+      return null;
+    }
+
+    return Math.ceil((dueDate - today) / 86400000);
+  }
+
   function statCard(label, value, detail) {
     return '<article class="module-card"><h4>' + label + "</h4><strong>" + value + "</strong><p>" + detail + "</p></article>";
   }
@@ -1922,9 +2050,18 @@
     return window.HRPlatform.utils.escapeHtml(value);
   }
 
-  function exportRows() {
-    return getInvoices().map(function (invoice) {
+  function exportRows(context) {
+    var invoices = getInvoices();
+    ensureSelectedMonth(invoices);
+    var visibleInvoices = getVisibleInvoices(context || {}, invoices);
+    var exportScope = visibleInvoices.length === invoices.length
+      ? "összes számla"
+      : "látható/szűrt lista";
+
+    return visibleInvoices.map(function (invoice) {
+      var days = daysUntilInvoiceDueDate(invoice);
       return {
+        export_scope: exportScope,
         datum: invoice.date,
         honap: getInvoiceMonth(invoice),
         partner_neve: invoice.partnerName,
@@ -1934,8 +2071,11 @@
         osszeg_brutto: invoice.grossAmount,
         fizetesi_mod: invoice.paymentMethod,
         allapot: invoice.status,
+        statusz_csoport: isPaidInvoice(invoice) ? "kiegyenlített" : "nyitott",
+        lejart: isOverdue(invoice) ? "igen" : "nem",
         utalas_datuma: invoice.paidDate,
         fizetesi_hatarido: invoice.dueDate,
+        napok_hataridoig: days == null ? "" : days,
         fizetesi_hatarido_nap: invoice.paymentTermDays,
         skonto: invoice.isSkonto ? "igen" : "nem",
         projekt: invoice.projectName,
