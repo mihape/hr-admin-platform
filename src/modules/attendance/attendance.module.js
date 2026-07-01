@@ -78,12 +78,12 @@
       "    <div>",
       '      <p class="module-kicker">Munkaidő / jelenlét</p>',
       "      <h3>Jelenléti ív modul</h3>",
-      "      <p>Heti jelenléti ív készítés, munkatárs választással és A4 nyomtatással.</p>",
+      "      <p>Heti jelenléti ívek előkészítése, nyomtatása és munkatárslista kezelése.</p>",
       "    </div>",
       '    <div class="module-actions">',
-      '      <button class="secondary-button" type="button" id="attendancePrintCurrent">Jelenlegi nyomtatása</button>',
-      '      <button class="secondary-button" type="button" id="attendancePrintAll">Összes aktív nyomtatása</button>',
-      '      <button class="primary-button" type="button" data-export="attendance">CSV export</button>',
+      '      <button class="secondary-button" type="button" id="attendancePrintCurrent">Kijelölt ív nyomtatása</button>',
+      '      <button class="secondary-button" type="button" id="attendancePrintAll">Aktív munkatársak nyomtatása</button>',
+      '      <button class="primary-button" type="button" data-export="attendance">Munkatárs CSV export</button>',
       "    </div>",
       "  </div>",
       '  <div class="module-grid">',
@@ -115,7 +115,7 @@
             "</tr>"
           ].join("");
         })
-        .join("") || '<tr><td colspan="5">Nincs munkatárs.</td></tr>',
+        .join("") || '<tr><td colspan="5">Nincs munkatárs. Adj hozzá legalább egy aktív munkatársat a nyomtatáshoz.</td></tr>',
       "      </tbody>",
       "    </table>",
       "  </div>",
@@ -129,7 +129,7 @@
     var status = normalizeEmployeeStatus(employee && employee.status ? employee.status : "Aktív");
     return [
       '<form class="form-panel" id="employeeForm">',
-      '<div class="form-heading"><strong>' + (isEditing ? "Munkatárs szerkesztése" : "Új munkatárs") + '</strong><span>' + (isEditing ? "A módosítás a helyi munkatárslistát frissíti." : "Helyi munkatárs felvétele a jelenléti ívekhez.") + '</span></div>',
+      '<div class="form-heading"><strong>' + (isEditing ? "Munkatárs szerkesztése" : "Új munkatárs") + '</strong><span>' + (isEditing ? "A módosítás a jelenléti ívek munkatárslistáját frissíti." : "Aktív munkatárs felvétele a heti jelenléti ívekhez.") + '</span></div>',
       '<input name="id" type="hidden" value="' + h(employee ? employee.id : "") + '" />',
       field("Név", '<input name="name" required placeholder="Kovács Anna" value="' + h(employee ? employee.name : "") + '" />'),
       field("Beosztás", '<input name="role" placeholder="Építésvezető" value="' + h(employee ? employee.role || "" : "") + '" />'),

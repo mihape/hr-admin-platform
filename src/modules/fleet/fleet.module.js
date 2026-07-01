@@ -197,10 +197,10 @@
       "    <div>",
       '      <p class="module-kicker">Céges autók</p>',
       "      <h3>Flotta modul</h3>",
-      "      <p>Jármű dashboard, tankolások, szervizek, lejáratok és havi kimutatások autónként.</p>",
+      "      <p>Autók, tankolások, szervizek és lejárati figyelmeztetések napi követéshez.</p>",
       "    </div>",
       '    <div class="module-actions">',
-      '      <button class="secondary-button" type="button" data-export="fleet">CSV export</button>',
+      '      <button class="secondary-button" type="button" data-export="fleet">Flotta CSV export</button>',
       "    </div>",
       "  </div>",
       renderSubnav("fleet", activeFleetSection, [
@@ -246,7 +246,7 @@
       '<article class="fleet-panel">',
       '<div class="fleet-panel-title"><h4>Legutóbbi tankolások</h4><span>Összesített</span></div>',
       '<div class="table-wrap compact"><table><thead><tr><th>Autó</th><th>Dátum</th><th>Liter</th><th>Költség</th></tr></thead><tbody>',
-      recentRefuels.map(renderRecentRefuelRow).join("") || '<tr><td colspan="4">Még nincs rögzített tankolás.</td></tr>',
+      recentRefuels.map(renderRecentRefuelRow).join("") || '<tr><td colspan="4">Még nincs rögzített tankolás. A Rögzítés fülön vehetsz fel új tankolást.</td></tr>',
       '</tbody></table></div>',
       '</article>',
       '<article class="fleet-panel">',
@@ -266,10 +266,10 @@
       '<div class="fleet-panel-title"><h4>Járművek</h4><span>' + vehicles.length + ' db</span></div>',
       vehicles.map(function (vehicle) {
         return renderVehicleButton(vehicle, selectedVehicle && selectedVehicle.id === vehicle.id);
-      }).join("") || '<p class="muted-line">Nincs találat a keresésre.</p>',
+      }).join("") || '<p class="muted-line">Nincs találat. Töröld a keresést vagy rögzíts új autót.</p>',
       '</aside>',
       '<section class="fleet-detail">',
-      selectedVehicle ? renderVehicleDetail(selectedVehicle, refuels, services) : '<div class="empty-state"><strong>Nincs kiválasztott autó</strong><p>Adj hozzá vagy válassz ki egy járművet a részletekhez.</p></div>',
+      selectedVehicle ? renderVehicleDetail(selectedVehicle, refuels, services) : '<div class="empty-state"><strong>Nincs kiválasztott autó</strong><p>Válassz egy járművet a listából, vagy a Rögzítés fülön adj hozzá újat.</p></div>',
       '</section>',
       '</section>'
     ].join("");

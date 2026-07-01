@@ -12,6 +12,7 @@
 - Rezsi/albérlet modul: az új havi elszámolások default határideje helyi dátumformázással készül, például `2026-05` hónaphoz `2026-06-10`.
 - Űrlapok: a számla, flotta és rezsi/albérlet numerikus mezők elfogadják a tizedes értékeket magyar vesszővel és ponttal is.
 - Űrlapok: a magyar ponttal tagolt ezres értékek, például `225.000` vagy `1.234.567`, újra teljes összegként mentődnek, a negatív numerikus értékek pedig nem menthetők.
+- UI/UX: a modulfejlécek, export gombok és üres állapotok egyértelműbb, napi használatra szánt szövegezést kaptak.
 - Dokumentáció: a használati útmutató és deployment leírás frissült a kimutatás/export, flotta/rezsi áttekintő és Beállítások / Adatok és átadás működéssel.
 
 ## 0.3.5 - 2026-06-26
