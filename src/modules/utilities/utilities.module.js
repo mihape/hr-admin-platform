@@ -746,7 +746,7 @@
   function parseDecimalValue(value) {
     var normalized = normalizeDecimalText(value);
     var numeric = Number(normalized || 0);
-    return Number.isFinite(numeric) ? numeric : 0;
+    return Number.isFinite(numeric) ? Math.max(0, numeric) : 0;
   }
 
   function normalizeDecimalText(value) {
@@ -762,6 +762,10 @@
         return text.replace(/\./g, "").replace(/,/g, ".");
       }
       return text.replace(/,/g, "");
+    }
+
+    if (lastDot > -1 && /^\d{1,3}(\.\d{3})+$/.test(text)) {
+      return text.replace(/\./g, "");
     }
 
     return text.replace(/,/g, ".");
