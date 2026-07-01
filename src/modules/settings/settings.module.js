@@ -28,7 +28,7 @@
       "    <div>",
       '      <p class="module-kicker">Alapadatok</p>',
       "      <h3>Beállítások</h3>",
-      "      <p>Cégadatok, felhasználói név, számla alapértékek és helyi adatkezelés egy helyen.</p>",
+      "      <p>Cégadatok, számla alapértékek, mentett partnerek és adatkezelés egy helyen.</p>",
       "    </div>",
       "  </div>",
       uiState.message ? '<div class="settings-save-state">' + h(uiState.message) + "</div>" : "",
@@ -74,7 +74,7 @@
     return [
       '<section class="settings-panel">',
       "  <h4>Adatok és átadás</h4>",
-      "  <p>Adatfájl, biztonsági mentés, visszatöltés és átadási export kezelése.</p>",
+      "  <p>Itt választható közös adatfájl, készíthető mentés, és innen exportálható átadási csomag.</p>",
       '  <div class="settings-info-row"><span>Mentés módja</span><strong>' + h(storageLabel(storageInfo)) + "</strong></div>",
       '  <div class="settings-info-row"><span>Közös adatfájl</span><strong>' + (storageInfo.isShared ? "Bekapcsolva" : "Nincs bekapcsolva") + "</strong></div>",
       storageInfo.dataPath ? '<div class="settings-info-row"><span>Adatfájl</span><strong>' + h(storageInfo.dataPath) + "</strong></div>" : "",

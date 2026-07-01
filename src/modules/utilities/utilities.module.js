@@ -261,13 +261,13 @@
       '<div class="module-layout" data-module-root="utilities">',
       '  <div class="module-header">',
       "    <div>",
-      '      <p class="module-kicker">Ingatlan / rezsi / albérlet</p>',
+      '      <p class="module-kicker">Rezsi és bérleti elszámolás</p>',
       "      <h3>Rezsi és albérlet modul</h3>",
-      "      <p>Az eredeti rezsi elszámoló adatmodellje alapján: ingatlanok, mérők, havi plusz tételek és fizetési egyenleg.</p>",
+      "      <p>Ingatlanok, mérőállások, plusz tételek, fizetések és nyitott egyenlegek havi bontásban.</p>",
       "    </div>",
       '    <div class="module-actions">',
       '      <button class="secondary-button" type="button" id="utilitiesPrint">Nyomtatás</button>',
-      '      <button class="primary-button" type="button" data-export="utilities">CSV export</button>',
+      '      <button class="primary-button" type="button" data-export="utilities">Elszámolás CSV export</button>',
       "    </div>",
       "  </div>",
       renderUtilityContextBar(unit, settlement, unitOptions),
@@ -319,9 +319,9 @@
         row("Egyszeri plusz tételek", money(calc.extraTotal)) +
         row("Fizetendő összesen", money(calc.total), "strong") +
         row("Egyenleg", money(calc.balance), calc.balance > 0 ? "warning" : "strong") +
-        '</div></section>' : '<div class="empty-state">Nincs ingatlan adat.</div>',
+        '</div></section>' : '<div class="empty-state"><strong>Nincs ingatlan adat</strong><span>Az Ingatlanok fülön vehetsz fel első albérletet vagy egységet.</span></div>',
       '<section class="module-card utility-settlement"><h4>Nyitott egyenlegek</h4><div class="fleet-alert-list">',
-      openRows.map(renderUtilityBalanceRow).join("") || '<p class="muted-line">Nincs nyitott albérleti vagy rezsi egyenleg.</p>',
+      openRows.map(renderUtilityBalanceRow).join("") || '<p class="muted-line">Nincs nyitott albérleti vagy rezsi egyenleg. A rögzített elszámolások rendezve vannak.</p>',
       '</div></section>'
     ].join("");
   }
@@ -361,7 +361,7 @@
   }
 
   function renderSettlementWorkspace(state, unit, settlement, calc, unitOptions) {
-    return calc ? renderSettlement(state, unit, settlement, calc) : '<div class="empty-state">Nincs ingatlan adat.</div>';
+    return calc ? renderSettlement(state, unit, settlement, calc) : '<div class="empty-state"><strong>Nincs ingatlan adat</strong><span>Az Ingatlanok fülön adj hozzá egységet, majd térj vissza az elszámoláshoz.</span></div>';
   }
 
   function renderUnitTable(units) {
@@ -463,7 +463,7 @@
     var h = window.HRPlatform.utils.escapeHtml;
     var money = window.HRPlatform.utils.formatCurrency;
     if (!settlement.extras || settlement.extras.length === 0) {
-      return '<div class="empty-state">Ehhez a hónaphoz nincs egyszeri plusz tétel.</div>';
+      return '<div class="empty-state"><strong>Nincs plusz tétel</strong><span>Ha volt egyszeri költség, add meg a nevét és összegét, majd kattints a Plusz tétel gombra.</span></div>';
     }
 
     return [

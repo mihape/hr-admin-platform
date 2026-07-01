@@ -234,9 +234,9 @@
       '<div class="module-layout ' + (uiState.compactMode ? "invoice-focus-layout" : "") + '" data-module-root="invoices">',
       '  <div class="module-header">',
       "    <div>",
-      '      <p class="module-kicker">Számlarendszerezés</p>',
+      '      <p class="module-kicker">Bejövő számlák</p>',
       "      <h3>Számla modul</h3>",
-      "      <p>Havi bontású számla nyilvántartás gyors szűrésekkel, rendezéssel, szerkesztéssel és egyértelmű kiegyenlítéssel.</p>",
+      "      <p>Rögzítés, keresés, kimutatás és kiegyenlítés egy helyen.</p>",
       "    </div>",
       '    <div class="module-actions">',
       '      <button class="secondary-button" type="button" id="invoiceCompactToggle">' + (uiState.compactMode ? "Teljes nézet" : "Fókusz nézet") + "</button>",
@@ -351,7 +351,7 @@
           "<small>" + row.count + " db</small>",
           "</div>"
         ].join("");
-      }).join("") : '<div class="invoice-report-empty">Nincs megjeleníthető adat.</div>',
+      }).join("") : '<div class="invoice-report-empty">Nincs adat a jelenlegi szűrésben.</div>',
       "</div>"
     ].join("");
   }
@@ -420,7 +420,7 @@
       "        </tr>",
       "      </thead>",
       "      <tbody>",
-      invoices.map(renderInvoiceRow).join("") || '<tr><td colspan="13">Nincs számla a szűrés szerint.</td></tr>',
+      invoices.map(renderInvoiceRow).join("") || '<tr><td colspan="13">Nincs számla a jelenlegi szűrés szerint. Töröld a szűrőket vagy rögzíts új számlát.</td></tr>',
       "      </tbody>",
       "    </table>",
       "  </div>"
@@ -514,7 +514,7 @@
 
     return [
       '<form class="form-panel invoice-form" id="invoiceForm">',
-      '<div class="form-heading"><strong>' + title + '</strong><span>' + (editingInvoice ? "A szerkesztés a kijelölt tételt írja felül." : "Kézi rögzítéssel is adhatsz új tételt.") + "</span></div>",
+      '<div class="form-heading"><strong>' + title + '</strong><span>' + (editingInvoice ? "A kijelölt számla adatai frissülnek mentéskor." : "Add meg a partner nevét és az összegeket; a hiányzó ÁFA vagy bruttó mezőt az app kiszámolja.") + "</span></div>",
       '<input name="id" type="hidden" value="' + hAttr(invoice.id || "") + '" />',
       '<datalist id="invoiceProjectOptions">' + projectOptions + "</datalist>",
       '<datalist id="invoicePartnerOptions">' + partnerOptions + "</datalist>",
