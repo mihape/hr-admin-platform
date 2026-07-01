@@ -178,14 +178,14 @@
 
     Object.keys(labels).forEach(function (key) {
       var reading = settlement.readings[key] || { previous: 0, current: 0, rate: state.rates[key] };
-      var consumption = Math.max(0, Number(reading.current || 0) - Number(reading.previous || 0));
-      var amount = consumption * Number(reading.rate || 0);
+      var consumption = Math.max(0, parseDecimalValue(reading.current) - parseDecimalValue(reading.previous));
+      var amount = consumption * parseDecimalValue(reading.rate);
       utilities[key] = {
         label: labels[key][0],
         unitLabel: labels[key][1],
-        previous: Number(reading.previous || 0),
-        current: Number(reading.current || 0),
-        rate: Number(reading.rate || 0),
+        previous: parseDecimalValue(reading.previous),
+        current: parseDecimalValue(reading.current),
+        rate: parseDecimalValue(reading.rate),
         consumption: consumption,
         amount: amount
       };
@@ -197,15 +197,15 @@
       return charge.unitId === unit.id && charge.active && !disabled.includes(charge.id);
     });
     var recurringTotal = recurringItems.reduce(function (sum, item) {
-      return sum + Number(item.amount || 0);
+      return sum + parseDecimalValue(item.amount);
     }, 0);
     var extraItems = settlement.extras || [];
     var extraTotal = extraItems.reduce(function (sum, item) {
-      return sum + Number(item.amount || 0);
+      return sum + parseDecimalValue(item.amount);
     }, 0);
-    var rent = Number(unit.rent || 0);
+    var rent = parseDecimalValue(unit.rent);
     var total = utilityTotal + rent + recurringTotal + extraTotal;
-    var paid = Number(settlement.paid || 0);
+    var paid = parseDecimalValue(settlement.paid);
 
     return {
       utilities: utilities,
@@ -424,10 +424,10 @@
       meterInput("gas", "Gáz", "m3", settlement, calc),
       "  </div>",
       '  <div class="form-panel embedded">',
-      field("Bérleti díj", '<input id="utilityRent" type="number" min="0" step="1000" value="' + Number(unit.rent || 0) + '" />'),
-      field("Fizetve", '<input id="utilityPaid" type="number" min="0" step="1000" value="' + Number(settlement.paid || 0) + '" />'),
+      field("Bérleti díj", '<input id="utilityRent" inputmode="decimal" value="' + h(parseDecimalValue(unit.rent)) + '" />'),
+      field("Fizetve", '<input id="utilityPaid" inputmode="decimal" value="' + h(parseDecimalValue(settlement.paid)) + '" />'),
       field("Plusz tétel neve", '<input id="utilityExtraName" placeholder="Hűtőcsere" />'),
-      field("Plusz tétel összege", '<input id="utilityExtraAmount" type="number" step="1000" />'),
+      field("Plusz tétel összege", '<input id="utilityExtraAmount" inputmode="decimal" />'),
       '<div class="form-actions"><button class="secondary-button" type="button" id="utilityAddExtra">Plusz tétel</button></div>',
       "  </div>",
       '  <div class="breakdown-list">',
@@ -445,13 +445,14 @@
   }
 
   function meterInput(kind, label, unitLabel, settlement, calc) {
+    var h = window.HRPlatform.utils.escapeHtml;
     var item = calc.utilities[kind];
     return [
       '<article class="module-card meter-card">',
       "<h4>" + label + "</h4>",
-      '<div class="field"><label>Előző</label><input data-meter="' + kind + '" data-field="previous" type="number" step="0.01" value="' + item.previous + '" /></div>',
-      '<div class="field"><label>Aktuális</label><input data-meter="' + kind + '" data-field="current" type="number" step="0.01" value="' + item.current + '" /></div>',
-      '<div class="field"><label>Egységár</label><input data-meter="' + kind + '" data-field="rate" type="number" step="1" value="' + item.rate + '" /></div>',
+      '<div class="field"><label>Előző</label><input data-meter="' + kind + '" data-field="previous" inputmode="decimal" value="' + h(item.previous) + '" /></div>',
+      '<div class="field"><label>Aktuális</label><input data-meter="' + kind + '" data-field="current" inputmode="decimal" value="' + h(item.current) + '" /></div>',
+      '<div class="field"><label>Egységár</label><input data-meter="' + kind + '" data-field="rate" inputmode="decimal" value="' + h(item.rate) + '" /></div>',
       "<p>Fogyasztás: <strong>" + item.consumption.toLocaleString("hu-HU") + " " + unitLabel + "</strong></p>",
       "<p>Összeg: <strong>" + window.HRPlatform.utils.formatCurrency(item.amount) + "</strong></p>",
       "</article>"
@@ -492,8 +493,8 @@
       field("Ingatlan neve", '<input name="name" required placeholder="C/2 lakás" value="' + h(unit.name || "") + '" />'),
       field("Bérlő", '<input name="tenantName" placeholder="Bérlő neve" value="' + h(unit.tenantName || "") + '" />'),
       field("Cím / azonosító", '<input name="address" placeholder="C épület - 2. lakás" value="' + h(unit.address || "") + '" />'),
-      field("Bérleti díj", '<input name="rent" type="number" min="0" step="1000" value="' + h(unit.rent || "") + '" />'),
-      field("Kaució", '<input name="deposit" type="number" min="0" step="1000" value="' + h(unit.deposit || "") + '" />'),
+      field("Bérleti díj", '<input name="rent" inputmode="decimal" value="' + h(unit.rent || "") + '" />'),
+      field("Kaució", '<input name="deposit" inputmode="decimal" value="' + h(unit.deposit || "") + '" />'),
       field("Telefon", '<input name="phone" value="' + h(unit.phone || "") + '" />'),
       '<div class="form-actions"><button class="primary-button" type="submit">' + (isEditing ? "Módosítás mentése" : "Ingatlan hozzáadása") + '</button>' + (isEditing ? '<button class="secondary-button" type="button" id="utilityCancelUnitEdit">Mégse</button>' : "") + '</div>',
       "</form>"
@@ -528,18 +529,18 @@
     });
     root.querySelectorAll("[data-meter]").forEach(function (input) {
       input.addEventListener("change", function () {
-        settlement.readings[input.dataset.meter][input.dataset.field] = Number(input.value || 0);
+        settlement.readings[input.dataset.meter][input.dataset.field] = parseDecimalValue(input.value);
         saveState(state);
         window.HRPlatform.notify();
       });
     });
     bindIfPresent(root, "#utilityRent", "change", function (event) {
-      unit.rent = Number(event.target.value || 0);
+      unit.rent = parseDecimalValue(event.target.value);
       saveState(state);
       window.HRPlatform.notify();
     });
     bindIfPresent(root, "#utilityPaid", "change", function (event) {
-      settlement.paid = Number(event.target.value || 0);
+      settlement.paid = parseDecimalValue(event.target.value);
       saveState(state);
       window.HRPlatform.notify();
     });
@@ -547,7 +548,7 @@
       var nameInput = root.querySelector("#utilityExtraName");
       var amountInput = root.querySelector("#utilityExtraAmount");
       var name = nameInput ? nameInput.value.trim() : "";
-      var amount = amountInput ? Number(amountInput.value || 0) : 0;
+      var amount = amountInput ? parseDecimalValue(amountInput.value) : 0;
       if (!name) {
         return;
       }
@@ -603,8 +604,8 @@
         tenantName: String(data.tenantName || "").trim(),
         phone: String(data.phone || "").trim(),
         address: String(data.address || "").trim(),
-        rent: Number(data.rent || 0),
-        deposit: Number(data.deposit || 0),
+        rent: parseDecimalValue(data.rent),
+        deposit: parseDecimalValue(data.deposit),
         prepaidRent: 0,
         active: true,
         notes: ""
@@ -740,6 +741,30 @@
 
   function field(label, control) {
     return '<div class="field"><label>' + label + "</label>" + control + "</div>";
+  }
+
+  function parseDecimalValue(value) {
+    var normalized = normalizeDecimalText(value);
+    var numeric = Number(normalized || 0);
+    return Number.isFinite(numeric) ? numeric : 0;
+  }
+
+  function normalizeDecimalText(value) {
+    var text = String(value || "")
+      .replace(/\s/g, "")
+      .replace(/Ft/gi, "")
+      .replace(/'/g, "");
+    var lastComma = text.lastIndexOf(",");
+    var lastDot = text.lastIndexOf(".");
+
+    if (lastComma > -1 && lastDot > -1) {
+      if (lastComma > lastDot) {
+        return text.replace(/\./g, "").replace(/,/g, ".");
+      }
+      return text.replace(/,/g, "");
+    }
+
+    return text.replace(/,/g, ".");
   }
 
   function exportRows() {

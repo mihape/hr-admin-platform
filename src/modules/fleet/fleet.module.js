@@ -378,7 +378,7 @@
       '<h4>Autó adatai</h4>',
       field("Rendszám", '<input name="plate" required placeholder="ABC-123" />'),
       field("Típus / modell", '<input name="model" required placeholder="Ford Transit" />'),
-      field("Km óra", '<input name="odometer" type="number" min="0" required placeholder="154200" />'),
+      field("Km óra", '<input name="odometer" inputmode="decimal" required placeholder="154200" />'),
       field("Műszaki", '<input name="motDate" type="date" required />'),
       field("KGFB", '<input name="insDate" type="date" required />'),
       '<div class="form-actions"><button class="primary-button" type="submit">Autó mentése</button><button class="quiet-button" type="button" data-reset-form="fleetVehicleForm">Ürítés</button></div>',
@@ -388,9 +388,9 @@
       '<h4>Tankolás</h4>',
       field("Autó", '<select name="vehicleId" required>' + vehicleOptions + "</select>"),
       field("Dátum", '<input name="date" type="date" required />'),
-      field("Km óra", '<input name="odometer" type="number" min="0" required />'),
-      field("Liter", '<input name="amount" type="number" min="0" step="0.1" required />'),
-      field("Költség", '<input name="cost" type="number" min="0" step="100" required />'),
+      field("Km óra", '<input name="odometer" inputmode="decimal" required />'),
+      field("Liter", '<input name="amount" inputmode="decimal" required />'),
+      field("Költség", '<input name="cost" inputmode="decimal" required />'),
       '<div class="form-actions"><button class="primary-button" type="submit">Tankolás mentése</button><button class="quiet-button" type="button" data-reset-form="fleetRefuelForm">Ürítés</button></div>',
       '</form>',
       '<form class="form-panel fleet-form" id="fleetServiceForm">',
@@ -399,7 +399,7 @@
       field("Autó", '<select name="vehicleId" required>' + vehicleOptions + "</select>"),
       field("Dátum", '<input name="date" type="date" required />'),
       field("Típus", '<select name="type"><option>Karbantartás</option><option>Javítás</option><option>Gumicsere</option><option>Eseti vizsga</option></select>'),
-      field("Költség", '<input name="cost" type="number" min="0" step="100" required />'),
+      field("Költség", '<input name="cost" inputmode="decimal" required />'),
       field("Leírás", '<input name="description" placeholder="Olajcsere" />'),
       '<div class="form-actions"><button class="primary-button" type="submit">Munkalap mentése</button><button class="quiet-button" type="button" data-reset-form="fleetServiceForm">Ürítés</button></div>',
       '</form>',
@@ -469,7 +469,7 @@
       id: id,
       plate: String(data.plate || "").trim().toUpperCase(),
       model: String(data.model || "").trim(),
-      odometer: Number(data.odometer || 0),
+      odometer: parseDecimalValue(data.odometer),
       motDate: data.motDate,
       insDate: data.insDate
     };
@@ -488,14 +488,14 @@
     var refuels = getRefuels();
     var vehicles = getVehicles();
     var id = data.id || "ref-" + Date.now();
-    var odometer = Number(data.odometer || 0);
+    var odometer = parseDecimalValue(data.odometer);
     var item = {
       id: id,
       vehicleId: data.vehicleId,
       date: data.date,
       odometer: odometer,
-      amount: Number(data.amount || 0),
-      cost: Number(data.cost || 0)
+      amount: parseDecimalValue(data.amount),
+      cost: parseDecimalValue(data.cost)
     };
 
     if (data.id) {
@@ -525,7 +525,7 @@
       vehicleId: data.vehicleId,
       date: data.date,
       type: data.type,
-      cost: Number(data.cost || 0),
+      cost: parseDecimalValue(data.cost),
       description: String(data.description || "").trim()
     };
 
@@ -774,6 +774,32 @@
 
   function field(label, control) {
     return '<div class="field"><label>' + label + "</label>" + control + "</div>";
+  }
+
+  function parseDecimalValue(value) {
+    var normalized = normalizeDecimalText(value);
+    var numeric = Number(normalized || 0);
+    return Number.isFinite(numeric) ? numeric : 0;
+  }
+
+  function normalizeDecimalText(value) {
+    var text = String(value || "")
+      .replace(/\s/g, "")
+      .replace(/Ft/gi, "")
+      .replace(/l$/i, "")
+      .replace(/km$/i, "")
+      .replace(/'/g, "");
+    var lastComma = text.lastIndexOf(",");
+    var lastDot = text.lastIndexOf(".");
+
+    if (lastComma > -1 && lastDot > -1) {
+      if (lastComma > lastDot) {
+        return text.replace(/\./g, "").replace(/,/g, ".");
+      }
+      return text.replace(/,/g, "");
+    }
+
+    return text.replace(/,/g, ".");
   }
 
   function filterByVehicle(items, vehicleId) {
