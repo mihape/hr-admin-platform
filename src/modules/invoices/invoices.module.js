@@ -125,13 +125,27 @@
   }
 
   function normalizeAmount(value) {
-    var normalized = String(value || "")
+    var normalized = normalizeDecimalText(value);
+    var numeric = Number(normalized || 0);
+    return Number.isFinite(numeric) ? numeric : 0;
+  }
+
+  function normalizeDecimalText(value) {
+    var text = String(value || "")
       .replace(/\s/g, "")
       .replace(/Ft/gi, "")
-      .replace(/\./g, "")
-      .replace(/,/g, ".");
+      .replace(/'/g, "");
+    var lastComma = text.lastIndexOf(",");
+    var lastDot = text.lastIndexOf(".");
 
-    return Math.round(Number(normalized || 0));
+    if (lastComma > -1 && lastDot > -1) {
+      if (lastComma > lastDot) {
+        return text.replace(/\./g, "").replace(/,/g, ".");
+      }
+      return text.replace(/,/g, "");
+    }
+
+    return text.replace(/,/g, ".");
   }
 
   function calculateVat(netAmount, grossAmount) {
@@ -139,11 +153,15 @@
       return Math.max(0, grossAmount - netAmount);
     }
 
-    return Math.round(netAmount * 0.27);
+    return roundAmount(netAmount * 0.27);
   }
 
   function calculateGross(netAmount, vatAmount) {
-    return Number(netAmount || 0) + Number(vatAmount || 0);
+    return roundAmount(Number(netAmount || 0) + Number(vatAmount || 0));
+  }
+
+  function roundAmount(value) {
+    return Math.round(Number(value || 0) * 100) / 100;
   }
 
   function getSummary() {
@@ -390,7 +408,7 @@
       filterCell("partnerName", "Partner"),
       filterCell("invoiceNumber", "Sorszám"),
       '<th colspan="2"></th>',
-      '<th><div class="amount-filter"><input data-column-filter="minGross" inputmode="numeric" placeholder="min" value="' + hAttr(uiState.filters.minGross) + '" /><input data-column-filter="maxGross" inputmode="numeric" placeholder="max" value="' + hAttr(uiState.filters.maxGross) + '" /></div></th>',
+      '<th><div class="amount-filter"><input data-column-filter="minGross" inputmode="decimal" placeholder="min" value="' + hAttr(uiState.filters.minGross) + '" /><input data-column-filter="maxGross" inputmode="decimal" placeholder="max" value="' + hAttr(uiState.filters.maxGross) + '" /></div></th>',
       '<th colspan="3"></th>',
       filterCell("projectName", "Projekt"),
       filterCell("category", "Kategória"),
@@ -499,9 +517,9 @@
       field("Dátum", '<input name="date" type="date" value="' + hAttr(invoice.date || "") + '" />'),
       field("Partner neve", '<input name="partnerName" list="invoicePartnerOptions" autocomplete="off" required placeholder="Kezdd el írni: Partner..." value="' + hAttr(invoice.partnerName || "") + '" />'),
       field("Számla sorszáma", '<input name="invoiceNumber" placeholder="ABC-2026-001" value="' + hAttr(invoice.invoiceNumber || "") + '" />'),
-      field("Nettó", '<input name="netAmount" type="number" min="0" step="1" value="' + hAttr(invoice.netAmount || "") + '" />'),
-      field("ÁFA", '<input name="vatAmount" type="number" min="0" step="1" placeholder="Automatikus 27%" value="' + hAttr(invoice.vatAmount || "") + '" />'),
-      field("Bruttó", '<input name="grossAmount" type="number" min="0" step="1" placeholder="Automatikus" value="' + hAttr(invoice.grossAmount || "") + '" />'),
+      field("Nettó", '<input name="netAmount" inputmode="decimal" value="' + hAttr(invoice.netAmount || "") + '" />'),
+      field("ÁFA", '<input name="vatAmount" inputmode="decimal" placeholder="Automatikus 27%" value="' + hAttr(invoice.vatAmount || "") + '" />'),
+      field("Bruttó", '<input name="grossAmount" inputmode="decimal" placeholder="Automatikus" value="' + hAttr(invoice.grossAmount || "") + '" />'),
       field("Fizetési mód", select("paymentMethod", paymentMethods, selectedPaymentMethod)),
       field("Fizetési határidő", paymentTermSelect(selectedPaymentTerm)),
       field("Státusz", select("status", statuses, invoice.status || "Fizetésre vár")),

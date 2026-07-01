@@ -10,6 +10,7 @@
 - Rezsi/albérlet modul: az áttekintés új nyitott egyenleg panelt kapott ingatlanonként és hónaponként.
 - Rezsi/albérlet modul: a határidő szövegek, rendezés és lejárt jelzés helyi `YYYY-MM-DD` dátumkezelést használnak, így magyar időzónában nem csúsznak egy napot.
 - Rezsi/albérlet modul: az új havi elszámolások default határideje helyi dátumformázással készül, például `2026-05` hónaphoz `2026-06-10`.
+- Űrlapok: a számla, flotta és rezsi/albérlet numerikus mezők elfogadják a tizedes értékeket magyar vesszővel és ponttal is.
 - Dokumentáció: a használati útmutató és deployment leírás frissült a kimutatás/export, flotta/rezsi áttekintő és Beállítások / Adatok és átadás működéssel.
 
 ## 0.3.5 - 2026-06-26
