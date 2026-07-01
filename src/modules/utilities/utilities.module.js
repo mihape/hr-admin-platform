@@ -178,14 +178,14 @@
 
     Object.keys(labels).forEach(function (key) {
       var reading = settlement.readings[key] || { previous: 0, current: 0, rate: state.rates[key] };
-      var consumption = Math.max(0, parseDecimalValue(reading.current) - parseDecimalValue(reading.previous));
-      var amount = consumption * parseDecimalValue(reading.rate);
+      var consumption = Math.max(0, parseMeterValue(reading.current) - parseMeterValue(reading.previous));
+      var amount = consumption * parseMeterValue(reading.rate);
       utilities[key] = {
         label: labels[key][0],
         unitLabel: labels[key][1],
-        previous: parseDecimalValue(reading.previous),
-        current: parseDecimalValue(reading.current),
-        rate: parseDecimalValue(reading.rate),
+        previous: parseMeterValue(reading.previous),
+        current: parseMeterValue(reading.current),
+        rate: parseMeterValue(reading.rate),
         consumption: consumption,
         amount: amount
       };
@@ -529,7 +529,7 @@
     });
     root.querySelectorAll("[data-meter]").forEach(function (input) {
       input.addEventListener("change", function () {
-        settlement.readings[input.dataset.meter][input.dataset.field] = parseDecimalValue(input.value);
+        settlement.readings[input.dataset.meter][input.dataset.field] = parseMeterValue(input.value);
         saveState(state);
         window.HRPlatform.notify();
       });
@@ -744,12 +744,18 @@
   }
 
   function parseDecimalValue(value) {
-    var normalized = normalizeDecimalText(value);
+    var normalized = normalizeDecimalText(value, true);
     var numeric = Number(normalized || 0);
     return Number.isFinite(numeric) ? Math.max(0, numeric) : 0;
   }
 
-  function normalizeDecimalText(value) {
+  function parseMeterValue(value) {
+    var normalized = normalizeDecimalText(value, false);
+    var numeric = Number(normalized || 0);
+    return Number.isFinite(numeric) ? Math.max(0, numeric) : 0;
+  }
+
+  function normalizeDecimalText(value, detectDotThousands) {
     var text = String(value || "")
       .replace(/\s/g, "")
       .replace(/Ft/gi, "")
@@ -764,7 +770,7 @@
       return text.replace(/,/g, "");
     }
 
-    if (lastDot > -1 && /^\d{1,3}(\.\d{3})+$/.test(text)) {
+    if (detectDotThousands && lastDot > -1 && /^\d{1,3}(\.\d{3})+$/.test(text)) {
       return text.replace(/\./g, "");
     }
 
