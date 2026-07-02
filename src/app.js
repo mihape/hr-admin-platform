@@ -208,7 +208,7 @@
     }
     return tasks.map(function (task) {
       return [
-        '<button class="dashboard-task ' + h(task.level || "info") + '" type="button" data-launch-module="' + h(task.moduleId) + '">',
+        '<button class="dashboard-task ' + h(task.level || "info") + '" type="button" data-launch-module="' + h(task.moduleId) + '"' + (task.action ? ' data-launch-action="' + h(task.action) + '"' : "") + '>',
         '<span>' + h(task.label) + '</span>',
         '<strong>' + h(task.title) + '</strong>',
         '<small>' + h(task.detail) + '</small>',
@@ -267,6 +267,7 @@
       var overdueTotal = openOverdue.reduce(sumInvoiceGross, 0);
       tasks.push({
         moduleId: "invoices",
+        action: "invoice-overdue",
         level: "danger",
         label: "Lejárt számla",
         title: openOverdue.length + " fizetésre váró számla",
@@ -280,6 +281,7 @@
       }, INVOICE_DUE_SOON_DAYS);
       tasks.push({
         moduleId: "invoices",
+        action: "invoice-due-soon",
         level: "warning",
         label: "Közeli számlalejárat",
         title: dueSoon.length + " számla " + INVOICE_DUE_SOON_DAYS + " napon belül",
@@ -402,7 +404,12 @@
 
   function isInvoicePaid(invoice) {
     var status = normalizeInvoiceStatus(invoice && invoice.status);
-    return status === "utalva" || status === "kiegyenlitve" || status === "fizetve" || status === "paid";
+    return status === "utalva" || status === "kiegyenlitve" || status === "fizetve" || status === "paid" || status.includes("befizet") || isAutoSettledInvoice(invoice);
+  }
+
+  function isAutoSettledInvoice(invoice) {
+    var paymentMethod = normalizeInvoiceStatus(invoice && invoice.paymentMethod);
+    return paymentMethod.includes("kesz") || paymentMethod === "kp";
   }
 
   function sumInvoiceGross(sum, invoice) {
@@ -410,31 +417,35 @@
   }
 
   function isPastDate(value) {
-    if (!value) {
-      return false;
-    }
-    var date = new Date(value);
+    var date = parseLocalDate(value);
     if (Number.isNaN(date.getTime())) {
       return false;
     }
     var today = new Date();
     today.setHours(0, 0, 0, 0);
-    date.setHours(0, 0, 0, 0);
     return date < today;
   }
 
   function daysUntil(value) {
-    if (!value) {
-      return 9999;
-    }
-    var target = new Date(value);
+    var target = parseLocalDate(value);
     if (Number.isNaN(target.getTime())) {
       return 9999;
     }
     var today = new Date();
     today.setHours(0, 0, 0, 0);
-    target.setHours(0, 0, 0, 0);
     return Math.ceil((target - today) / 86400000);
+  }
+
+  function parseLocalDate(value) {
+    var match = String(value || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (match) {
+      return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+    }
+    var date = new Date(value);
+    if (!Number.isNaN(date.getTime())) {
+      date.setHours(0, 0, 0, 0);
+    }
+    return date;
   }
 
   function deadlineText(days) {
@@ -579,8 +590,13 @@
     });
     root.querySelectorAll("[data-launch-module]").forEach(function (card) {
       card.addEventListener("click", function () {
-        platform.state.activeModuleId = card.dataset.launchModule;
-        location.hash = card.dataset.launchModule;
+        var moduleId = card.dataset.launchModule;
+        var moduleDefinition = platform.getModuleById(moduleId);
+        if (moduleDefinition && card.dataset.launchAction && typeof moduleDefinition.applyLaunchAction === "function") {
+          moduleDefinition.applyLaunchAction(card.dataset.launchAction, getContext());
+        }
+        platform.state.activeModuleId = moduleId;
+        location.hash = moduleId;
         render();
       });
     });

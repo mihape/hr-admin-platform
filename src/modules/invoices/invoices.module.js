@@ -45,6 +45,7 @@
     month: "",
     status: "all",
     paymentMethod: "all",
+    dueState: "all",
     localSearch: "",
     compactMode: false,
     sortKey: "date",
@@ -290,6 +291,7 @@
       '  <label class="field compact-field invoice-search-field"><span>Számla keresés</span><input id="invoiceLocalSearch" type="search" placeholder="Partner, sorszám, projekt..." value="' + hAttr(uiState.localSearch) + '" /></label>',
       '  <div class="field compact-field"><label>Státusz</label>' + filterSelect("invoiceStatusFilter", "status", ["all"].concat(statuses), uiState.status, "Összes státusz") + "</div>",
       '  <div class="field compact-field"><label>Fizetési mód</label>' + filterSelect("invoicePaymentFilter", "paymentMethod", ["all"].concat(paymentMethods), uiState.paymentMethod, "Összes mód") + "</div>",
+      '  <div class="field compact-field"><label>Határidő</label>' + dueStateSelect() + "</div>",
       '  <div class="toolbar-summary" data-invoice-toolbar-summary><strong>' + visibleInvoices.length + " / " + toolState.totalBase + '</strong><span>' + toolState.helper + '</span></div>',
       '  <div class="bulk-actions" data-invoice-bulk-actions><span>' + toolState.selectedCount + " kijelölve</span>" + '<button class="settle-button" type="button" id="invoiceBulkSettle" ' + (toolState.selectedCount ? "" : "disabled") + '>Kiegyenlítés</button></div>',
       '<button class="secondary-button" type="button" id="invoiceSelectVisible" ' + (toolState.selectableCount ? "" : "disabled") + '>Láthatók kijelölése</button>',
@@ -360,7 +362,7 @@
     var activeFilterCount = countActiveInvoiceFilters(context);
     var hasGlobalSearch = hasInvoiceGlobalSearch(context);
     var hasLocalSearch = hasInvoiceLocalSearch();
-    var usesAllInvoices = hasGlobalSearch || hasLocalSearch || hasProjectQuickFilter() || hasPartnerQuickFilter();
+    var usesAllInvoices = hasGlobalSearch || hasLocalSearch || hasProjectQuickFilter() || hasPartnerQuickFilter() || hasInvoiceDueFilter();
     var totalBase = usesAllInvoices ? allInvoices.length : monthInvoices.length;
     var selectedCount = getSelectedInvoiceIds().length;
     var selectableCount = visibleInvoices.filter(function (invoice) {
@@ -622,6 +624,12 @@
 
     root.querySelector("#invoicePaymentFilter").addEventListener("change", function (event) {
       uiState.paymentMethod = event.target.value;
+      uiState.selectedIds = {};
+      window.HRPlatform.notify();
+    });
+
+    root.querySelector("#invoiceDueFilter").addEventListener("change", function (event) {
+      uiState.dueState = event.target.value;
       uiState.selectedIds = {};
       window.HRPlatform.notify();
     });
@@ -1082,7 +1090,7 @@
   }
 
   function getVisibleInvoices(context, invoices) {
-    var visible = hasInvoiceGlobalSearch(context) || hasInvoiceLocalSearch() || hasProjectQuickFilter() || hasPartnerQuickFilter()
+    var visible = hasInvoiceGlobalSearch(context) || hasInvoiceLocalSearch() || hasProjectQuickFilter() || hasPartnerQuickFilter() || hasInvoiceDueFilter()
       ? invoices.slice()
       : invoices.filter(function (invoice) {
         return getInvoiceMonth(invoice) === uiState.month;
@@ -1110,6 +1118,10 @@
     return Boolean(String(uiState.localSearch || "").trim());
   }
 
+  function hasInvoiceDueFilter() {
+    return uiState.dueState !== "all";
+  }
+
   function countActiveInvoiceFilters(context) {
     var count = 0;
     if (context && String(context.searchTerm || "").trim()) {
@@ -1124,6 +1136,9 @@
     if (uiState.paymentMethod !== "all") {
       count += 1;
     }
+    if (uiState.dueState !== "all") {
+      count += 1;
+    }
     Object.keys(uiState.filters).forEach(function (key) {
       if (String(uiState.filters[key] || "").trim()) {
         count += 1;
@@ -1135,6 +1150,7 @@
   function clearInvoiceFilters() {
     uiState.status = "all";
     uiState.paymentMethod = "all";
+    uiState.dueState = "all";
     uiState.localSearch = "";
     uiState.filters = {
       date: "",
@@ -1154,6 +1170,14 @@
     }
 
     if (uiState.paymentMethod !== "all" && invoice.paymentMethod !== uiState.paymentMethod) {
+      return false;
+    }
+
+    if (uiState.dueState === "overdue" && !isOverdue(invoice)) {
+      return false;
+    }
+
+    if (uiState.dueState === "dueSoon" && !isDueSoon(invoice)) {
       return false;
     }
 
@@ -2006,6 +2030,11 @@
     return dueDate < today;
   }
 
+  function isDueSoon(invoice) {
+    var days = daysUntilInvoiceDueDate(invoice);
+    return !isPaidInvoice(invoice) && days != null && days >= 0 && days <= 7;
+  }
+
   function daysUntilInvoiceDueDate(invoice) {
     if (!invoice || !invoice.dueDate) {
       return null;
@@ -2018,6 +2047,27 @@
     }
 
     return Math.ceil((dueDate - today) / 86400000);
+  }
+
+  function applyLaunchAction(action) {
+    if (action !== "invoice-overdue" && action !== "invoice-due-soon") {
+      return;
+    }
+
+    clearInvoiceFilters();
+    uiState.dueState = action === "invoice-overdue" ? "overdue" : "dueSoon";
+    uiState.compactMode = true;
+    uiState.editingId = "";
+    uiState.selectedIds = {};
+    uiState.sortKey = "dueDate";
+    uiState.sortDirection = "asc";
+    if (window.HRPlatform && window.HRPlatform.state) {
+      window.HRPlatform.state.searchTerm = "";
+      var searchInput = document.getElementById("globalSearch");
+      if (searchInput) {
+        searchInput.value = "";
+      }
+    }
   }
 
   function statCard(label, value, detail) {
@@ -2063,6 +2113,22 @@
       items.map(function (item) {
         var label = item === "all" ? allLabel : item;
         return '<option value="' + item + '" ' + (item === selected ? "selected" : "") + ">" + label + "</option>";
+      }).join("") +
+      "</select>"
+    );
+  }
+
+  function dueStateSelect() {
+    var items = [
+      { value: "all", label: "Összes határidő" },
+      { value: "overdue", label: "Lejárt" },
+      { value: "dueSoon", label: "7 napon belül" }
+    ];
+
+    return (
+      '<select id="invoiceDueFilter" name="dueState">' +
+      items.map(function (item) {
+        return '<option value="' + item.value + '" ' + (item.value === uiState.dueState ? "selected" : "") + ">" + item.label + "</option>";
       }).join("") +
       "</select>"
     );
@@ -2120,6 +2186,7 @@
     render: render,
     afterRender: afterRender,
     exportRows: exportRows,
+    applyLaunchAction: applyLaunchAction,
     isCompact: function () {
       return uiState.compactMode;
     }
