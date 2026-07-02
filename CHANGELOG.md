@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Áttekintő/Számlák: a Mai fókusz lejárt és közeli számlakártyái ugyanarra a számlalistára visznek, amelyből a darabszám és összeg készül; a számla modul külön Határidő szűrőt kapott.
+- Áttekintő: a készpénzes számlák nem számítanak nyitott lejárt tételnek akkor sem, ha régi/importált adatban még fizetésre váró státusz maradt.
+
 ## 0.3.6 - 2026-07-02
 
 - Számla modul: új kimutatás panel a látható/szűrt lista bruttó, nyitott, fizetett, ÁFA, lejárt, kategória és fizetési mód bontásával.
