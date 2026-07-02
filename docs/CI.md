@@ -12,7 +12,7 @@ The workflow is designed to:
 
 - run on pull requests
 - run on pushes to `main`
-- run on version tags such as `v0.3.5`
+- run on version tags such as `v0.3.6`
 - install dependencies with `npm ci`
 - run JavaScript syntax checks
 - build the Windows release installer
@@ -30,8 +30,8 @@ filenames inside `CHECKSUMS.txt` must match the filenames shown on the GitHub
 Release page, for example:
 
 ```text
-HR.Admin.Platform.Setup.0.3.5.exe
-HR.Admin.Platform.Setup.0.3.5.Demo.exe
+HR.Admin.Platform.Setup.0.3.6.exe
+HR.Admin.Platform.Setup.0.3.6.Demo.exe
 ```
 
 ## Current Status

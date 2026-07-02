@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.3.6 - 2026-07-02
+
 - Számla modul: új kimutatás panel a látható/szűrt lista bruttó, nyitott, fizetett, ÁFA, lejárt, kategória és fizetési mód bontásával.
 - Számla modul: a CSV export most a látható/szűrt listát exportálja, és tartalmazza a szűrési kört, státuszcsoportot, lejárt jelzést és határidőig hátralévő napokat.
 - Áttekintő: a napi fókusz a 7 napon belül esedékes, nyitott számlákat is jelzi.
