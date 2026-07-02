@@ -1,22 +1,19 @@
-# HR Admin Platform 0.3.6
+# HR Admin Platform 0.3.7
 
 ## Highlights
 
-- Adds an invoice reporting panel for the visible/filtered list: gross total, open total, paid total, VAT, overdue count, category split, and payment method split.
-- Exports the visible/filtered invoice list with filter scope, status group, overdue flag, and days until due date.
-- Extends the daily overview with upcoming open invoice due dates within 7 days.
-- Moves data and handoff actions from the overview into Settings / Data and handoff.
-- Polishes fleet and utilities/rent overview panels for deadline and open-balance work.
-- Fixes local date handling for utilities/rent due dates in Hungarian time zones.
-- Allows decimal values in invoice, fleet, and utilities/rent numeric fields with Hungarian comma or dot input.
-- Preserves Hungarian dot-grouped thousands for money fields while keeping three-decimal meter readings and unit rates intact.
-- Refreshes user documentation and deployment notes for the new reporting, export, and settings layout.
+- Hotfix for the Overview / Daily focus invoice counts.
+- The overdue invoice focus card now opens the invoice module with the matching overdue filter.
+- The invoice module has a visible due-date filter: all, overdue, or due within 7 days.
+- Overview invoice focus uses local `YYYY-MM-DD` date handling.
+- Cash/KP invoices are excluded from open overdue totals even when older/imported data still says payment pending.
+- Keeps all v0.3.6 reporting, export, fleet, utilities/rent, and decimal-input improvements.
 
 ## Recommended release asset
 
 Upload this as the main GitHub Release installer:
 
-`release-assets/HR.Admin.Platform.Setup.0.3.6.exe`
+`release-assets/HR.Admin.Platform.Setup.0.3.7.exe`
 
 It starts with an empty local database on a fresh machine. Existing users can switch to a NAS/shared data file from Settings.
 
@@ -24,7 +21,7 @@ It starts with an empty local database on a fresh machine. Existing users can sw
 
 Optional internal testing asset:
 
-`release-assets/HR.Admin.Platform.Setup.0.3.6.Demo.exe`
+`release-assets/HR.Admin.Platform.Setup.0.3.7.Demo.exe`
 
 This build starts with fictional sample data. Do not use it as the default public download.
 
@@ -34,7 +31,7 @@ Local-first Windows desktop admin application for invoices, fleet records, atten
 
 ## Installation
 
-1. Download `HR.Admin.Platform.Setup.0.3.6.exe`.
+1. Download `HR.Admin.Platform.Setup.0.3.7.exe`.
 2. Run the installer.
 3. Choose the installation directory.
 4. Launch the app at the end of setup or from the Start menu.

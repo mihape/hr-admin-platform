@@ -17,7 +17,7 @@ This guide describes how to deploy HR Admin Platform as a local Windows desktop 
 Use the release installer:
 
 ```text
-HR.Admin.Platform.Setup.0.3.6.exe
+HR.Admin.Platform.Setup.0.3.7.exe
 ```
 
 The installer is an NSIS assisted installer. It is not a one-click silent installer by default. The user can select the installation directory and launch the app after setup.
@@ -108,13 +108,13 @@ smoke-tested on a disposable workstation or VM.
 Default current-user install:
 
 ```powershell
-.\HR.Admin.Platform.Setup.0.3.6.exe /S
+.\HR.Admin.Platform.Setup.0.3.7.exe /S
 ```
 
 Custom install directory:
 
 ```powershell
-.\HR.Admin.Platform.Setup.0.3.6.exe /S /D=C:\Apps\HR Admin Platform
+.\HR.Admin.Platform.Setup.0.3.7.exe /S /D=C:\Apps\HR Admin Platform
 ```
 
 Important notes:
@@ -158,7 +158,7 @@ Important notes:
 
 Recommended package source:
 
-- `HR.Admin.Platform.Setup.0.3.6.exe`
+- `HR.Admin.Platform.Setup.0.3.7.exe`
 - optional `CHECKSUMS.txt` kept with the release evidence
 
 Required Intune assignment setting:
@@ -173,7 +173,7 @@ detected outside the intended employee profile.
 Example install command:
 
 ```text
-HR.Admin.Platform.Setup.0.3.6.exe /S
+HR.Admin.Platform.Setup.0.3.7.exe /S
 ```
 
 Example uninstall command:
@@ -214,7 +214,7 @@ under the service account profile instead of the employee profile.
 Example install command:
 
 ```text
-HR.Admin.Platform.Setup.0.3.6.exe /S
+HR.Admin.Platform.Setup.0.3.7.exe /S
 ```
 
 Example uninstall command:
@@ -246,7 +246,7 @@ Example PowerShell sketch:
 
 ```powershell
 $installPath = Join-Path $env:LOCALAPPDATA "Programs\HR Admin Platform\HR Admin Platform.exe"
-$installer = "\\server\software\HR.Admin.Platform.Setup.0.3.6.exe"
+$installer = "\\server\software\HR.Admin.Platform.Setup.0.3.7.exe"
 
 if (-not (Test-Path $installPath)) {
   Start-Process -FilePath $installer -ArgumentList "/S" -Wait
@@ -276,12 +276,12 @@ migration, or data cleanup mechanism.
 
 Run this on a disposable Windows test user/profile before production rollout:
 
-1. Download `HR.Admin.Platform.Setup.0.3.6.exe` and `CHECKSUMS.txt`.
+1. Download `HR.Admin.Platform.Setup.0.3.7.exe` and `CHECKSUMS.txt`.
 2. Verify the installer hash against `CHECKSUMS.txt`.
 3. Run:
 
    ```powershell
-   .\HR.Admin.Platform.Setup.0.3.6.exe /S
+   .\HR.Admin.Platform.Setup.0.3.7.exe /S
    ```
 
 4. Confirm this file exists:
@@ -290,7 +290,7 @@ Run this on a disposable Windows test user/profile before production rollout:
    %LOCALAPPDATA%\Programs\HR Admin Platform\HR Admin Platform.exe
    ```
 
-5. Launch the app and confirm Settings shows version `0.3.6`.
+5. Launch the app and confirm Settings shows version `0.3.7`.
 6. Create or restore a non-production test backup.
 7. Confirm data persists after closing and reopening the app.
 8. Run silent uninstall:

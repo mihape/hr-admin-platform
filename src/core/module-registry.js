@@ -1,7 +1,7 @@
 (function () {
   var APP_KEY = "hr-admin-platform";
   var runtimeConfig = window.HRAdminConfig || {};
-  var APP_VERSION = runtimeConfig.version || "0.3.6";
+  var APP_VERSION = runtimeConfig.version || "0.3.7";
   var modules = [];
   var listeners = [];
 
